@@ -39,6 +39,7 @@ TagManager:
   - WormDeath
   - Liver
   - Arm
+  - Bench
   layers:
   - Default
   - TransparentFX

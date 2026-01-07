@@ -138,7 +138,10 @@ public class SmallMeat : MonoBehaviour
     {
         if (other.CompareTag("BaggerCollector") && !disableExtraTriggers)
         {
-            EventHandler.i.PiecesInBagger++;
+            if (EventHandler.i.PiecesInBagger + 1 < 10)
+            {
+                EventHandler.i.PiecesInBagger++;
+            }
             disableExtraTriggers = true;
             Destroy(gameObject);
         }
@@ -156,7 +159,7 @@ public class SmallMeat : MonoBehaviour
                 }
                 else
                 {
-                    EventHandler.i.Errors[7]++;
+                    EventHandler.i.ErrorsMidOrder[7]++;
                     EventHandler.i.DailyLog.Add($"- {(int)EventHandler.i.Timer} seconds: Error, received an unwanted well cooked half piece of meat");
                 }
                 computerScript.updateLog();
@@ -171,7 +174,7 @@ public class SmallMeat : MonoBehaviour
                 }
                 else
                 {
-                    EventHandler.i.Errors[6]++;
+                    EventHandler.i.ErrorsMidOrder[6]++;
                     EventHandler.i.DailyLog.Add($"- {(int)EventHandler.i.Timer} seconds: Error, received an unwanted lightly cooked half piece of meat");
                 }
                 computerScript.updateLog();
@@ -186,7 +189,7 @@ public class SmallMeat : MonoBehaviour
                 }
                 else
                 {
-                    EventHandler.i.Errors[0]++;
+                    EventHandler.i.ErrorsMidOrder[0]++;
                     EventHandler.i.DailyLog.Add($"- {(int)EventHandler.i.Timer} seconds: Error, received an unwanted half piece of meat");
                 }
                 computerScript.updateLog();
@@ -241,7 +244,7 @@ public class SmallMeat : MonoBehaviour
                             EventHandler.i.OrdersSent[j] -= EventHandler.i.Orders[i, j];
                         }
                         EventHandler.i.OrdersComplete[i] = true;
-                        EventHandler.i.checkmarkOrder(i);
+                        EventHandler.i.checkmarkOrder(i, false);
 
                         EventHandler.i.DailyLog.Add($"- {(int)EventHandler.i.Timer} seconds: Order {i + 1} completed");
                         computerScript.updateLog();

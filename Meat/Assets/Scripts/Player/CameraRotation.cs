@@ -11,7 +11,7 @@ public class CameraRotation : MonoBehaviour
     [Header("Look Variables")]
     public float mouseSensitivity = 100f;
 
-    private float xRot;
+    [HideInInspector] public float xRot;
     [HideInInspector] public float yRot = -90;
 
     private float multiplier = 0.01f;

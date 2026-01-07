@@ -72,7 +72,7 @@ public class Bag : MonoBehaviour
                 }
                 else
                 {
-                    EventHandler.i.Errors[2]++;
+                    EventHandler.i.ErrorsMidOrder[2]++;
                     EventHandler.i.DailyLog.Add($"- {(int)EventHandler.i.Timer} seconds: Error, received an unwanted bag containing a half piece worth of meat");
                 }
                 computerScript.updateLog();
@@ -100,7 +100,7 @@ public class Bag : MonoBehaviour
                                 EventHandler.i.OrdersSent[j] -= EventHandler.i.Orders[i, j];
                             }
                             EventHandler.i.OrdersComplete[i] = true;
-                            EventHandler.i.checkmarkOrder(i);
+                            EventHandler.i.checkmarkOrder(i, false);
 
                             EventHandler.i.DailyLog.Add($"- {(int)EventHandler.i.Timer} seconds: Order {i + 1} completed");
                             computerScript.updateLog();
@@ -149,7 +149,7 @@ public class Bag : MonoBehaviour
                 }
                 else
                 {
-                    EventHandler.i.Errors[3]++;
+                    EventHandler.i.ErrorsMidOrder[3]++;
                     EventHandler.i.DailyLog.Add($"- {(int)EventHandler.i.Timer} seconds: Error, received an unwanted bag containing 1 piece worth of meat");
                 }
                 computerScript.updateLog();
@@ -177,7 +177,7 @@ public class Bag : MonoBehaviour
                                 EventHandler.i.OrdersSent[j] -= EventHandler.i.Orders[i, j];
                             }
                             EventHandler.i.OrdersComplete[i] = true;
-                            EventHandler.i.checkmarkOrder(i);
+                            EventHandler.i.checkmarkOrder(i, false);
 
                             EventHandler.i.DailyLog.Add($"- {(int)EventHandler.i.Timer} seconds: Order {i + 1} completed");
                             computerScript.updateLog();
@@ -226,7 +226,7 @@ public class Bag : MonoBehaviour
                 }
                 else
                 {
-                    EventHandler.i.Errors[4]++;
+                    EventHandler.i.ErrorsMidOrder[4]++;
                     EventHandler.i.DailyLog.Add($"- {(int)EventHandler.i.Timer} seconds: Error, received an unwanted bag containing 1 and a half pieces worth of meat");
                 }
                 computerScript.updateLog();
@@ -254,7 +254,7 @@ public class Bag : MonoBehaviour
                                 EventHandler.i.OrdersSent[j] -= EventHandler.i.Orders[i, j];
                             }
                             EventHandler.i.OrdersComplete[i] = true;
-                            EventHandler.i.checkmarkOrder(i);
+                            EventHandler.i.checkmarkOrder(i, false);
 
                             EventHandler.i.DailyLog.Add($"- {(int)EventHandler.i.Timer} seconds: Order {i + 1} completed");
                             computerScript.updateLog();
@@ -303,7 +303,7 @@ public class Bag : MonoBehaviour
                 }
                 else
                 {
-                    EventHandler.i.Errors[5]++;
+                    EventHandler.i.ErrorsMidOrder[5]++;
                     EventHandler.i.DailyLog.Add($"- {(int)EventHandler.i.Timer} seconds: Error, received an unwanted bag containing 2 pieces worth of meat");
                 }
                 computerScript.updateLog();
@@ -331,7 +331,7 @@ public class Bag : MonoBehaviour
                                 EventHandler.i.OrdersSent[j] -= EventHandler.i.Orders[i, j];
                             }
                             EventHandler.i.OrdersComplete[i] = true;
-                            EventHandler.i.checkmarkOrder(i);
+                            EventHandler.i.checkmarkOrder(i, false);
 
                             EventHandler.i.DailyLog.Add($"- {(int)EventHandler.i.Timer} seconds: Order {i + 1} completed");
                             computerScript.updateLog();

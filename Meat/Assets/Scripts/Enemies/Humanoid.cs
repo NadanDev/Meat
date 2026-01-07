@@ -8,6 +8,7 @@ public class Humanoid : MonoBehaviour
     [SerializeField] GameObject PlayerCam;
     [SerializeField] GameObject ComputerCam;
     [SerializeField] GameObject CuttingBoardCam;
+    [SerializeField] GameObject BenchCam;
     [SerializeField] GameObject ThisCam;
     [SerializeField] GameObject StartDayButton;
     [SerializeField] GameObject LogButton;
@@ -151,12 +152,14 @@ public class Humanoid : MonoBehaviour
         PlayerCam.gameObject.SetActive(false);
         CuttingBoardCam.SetActive(false);
         ComputerCam.SetActive(false);
+        BenchCam.SetActive(false);
         ThisCam.gameObject.SetActive(true);
 
         GetComponent<Animator>().SetBool("Scare", true);
         Bite.Play();
 
         yield return new WaitForSeconds(0.75f);
+        EventHandler.i.StartCoroutine("fadeOutAmbience", 99);
 
         StartUI.SetBool("FadeOut", true);
         yield return new WaitForSeconds(5f);
@@ -212,6 +215,15 @@ public class Humanoid : MonoBehaviour
 
         isScaring = false;
         gameObject.SetActive(false);
+
+        if (EventHandler.i.SkipTo > 0)
+        {
+            GameObject.FindGameObjectWithTag("Computer").GetComponent<ComputerScript>().startDay();
+        }
+        else
+        {
+            GameObject.Find("Player").GetComponent<Interact>().StartCoroutine("LoadFromBench", true);
+        }
     }
 
     IEnumerator Noises()

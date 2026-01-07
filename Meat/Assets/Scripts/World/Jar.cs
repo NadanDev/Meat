@@ -25,7 +25,10 @@ public class Jar : MonoBehaviour
     {
         if (other.CompareTag("BaggerCollector") && !disableExtraTriggers)
         {
-            EventHandler.i.PiecesInBagger += 1;
+            if (EventHandler.i.PiecesInBagger + 1 < 10)
+            {
+                EventHandler.i.PiecesInBagger += 1;
+            }
             disableExtraTriggers = true;
             Destroy(gameObject);
         }
@@ -41,7 +44,7 @@ public class Jar : MonoBehaviour
             }
             else
             {
-                EventHandler.i.Errors[10]++;
+                EventHandler.i.ErrorsMidOrder[10]++;
                 EventHandler.i.DailyLog.Add($"- {(int)EventHandler.i.Timer} seconds: Error, received an unwanted jar of meat");
             }
             computerScript.updateLog();
@@ -69,7 +72,7 @@ public class Jar : MonoBehaviour
                             EventHandler.i.OrdersSent[j] -= EventHandler.i.Orders[i, j];
                         }
                         EventHandler.i.OrdersComplete[i] = true;
-                        EventHandler.i.checkmarkOrder(i);
+                        EventHandler.i.checkmarkOrder(i, false);
 
                         EventHandler.i.DailyLog.Add($"- {(int)EventHandler.i.Timer} seconds: Order {i + 1} completed");
                         computerScript.updateLog();

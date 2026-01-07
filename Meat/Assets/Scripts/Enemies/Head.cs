@@ -12,6 +12,7 @@ public class Head : MonoBehaviour
     [SerializeField] GameObject PlayerCam;
     [SerializeField] GameObject ComputerCam;
     [SerializeField] GameObject CuttingBoardCam;
+    [SerializeField] GameObject BenchCam;
     [SerializeField] GameObject ThisCam;
     [SerializeField] LookingAt Parent;
     [SerializeField] AudioSource Squish;
@@ -51,6 +52,7 @@ public class Head : MonoBehaviour
         PlayerCam.gameObject.SetActive(false);
         CuttingBoardCam.SetActive(false);
         ComputerCam.SetActive(false);
+        BenchCam.SetActive(false);
         ThisCam.gameObject.SetActive(true);
 
         GetComponent<Animator>().SetBool("Scare", true);
@@ -58,6 +60,7 @@ public class Head : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         Squish.Play();
         yield return new WaitForSeconds(0.25f);
+        EventHandler.i.StartCoroutine("fadeOutAmbience", 99);
 
         StartUI.SetBool("FadeOut", true);
         yield return new WaitForSeconds(5f);
@@ -112,5 +115,14 @@ public class Head : MonoBehaviour
 
         Parent.isScaring = false;
         gameObject.SetActive(false);
+
+        if (EventHandler.i.SkipTo > 0)
+        {
+            GameObject.FindGameObjectWithTag("Computer").GetComponent<ComputerScript>().startDay();
+        }
+        else
+        {
+            GameObject.Find("Player").GetComponent<Interact>().StartCoroutine("LoadFromBench", true);
+        }
     }
 }

@@ -13,6 +13,7 @@ public class MainMenu : MonoBehaviour
     [SerializeField] TMP_Text DifficultyText;
 
     [SerializeField] AudioSource Lightbulb;
+    [SerializeField] AudioSource LightbulbEcho;
     [SerializeField] AudioSource Select;
     [SerializeField] AudioSource Music;
 
@@ -20,12 +21,13 @@ public class MainMenu : MonoBehaviour
     [SerializeField] GameObject ContinueButton;
     [SerializeField] GameObject First;
     [SerializeField] GameObject Second;
+    [SerializeField] GameObject QuerryResetSkipTo;
 
     bool newGameSelected = false;
+    bool chosenResetSkipTo = false;
 
     private void Start()
     {
-        PlayerPrefs.SetInt("Day", 5);
         Music.volume = 0.4f;
 
         Cursor.visible = true;
@@ -40,6 +42,13 @@ public class MainMenu : MonoBehaviour
             ContinueButton.SetActive(false);
             ContinueText.SetActive(false);
         }
+
+        if (DifficultyHandler.restart)
+        {
+            DifficultyHandler.restart = false;
+            PlayerPrefs.SetInt("SkipTo", 0);
+            StartCoroutine(Play(true));
+        }
     }
 
     bool pressedEnter = false;
@@ -49,7 +58,7 @@ public class MainMenu : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Return) && !pressedEnter && cooldownPassed && newGameSelected)
         {
             PlayerPrefs.SetInt("Difficulty", DifficultyHandler.difficulty);
-            StartCoroutine(Play());
+            StartCoroutine(Play(false));
             pressedEnter = true;
             DifficultyHandler.cont = false;
         }
@@ -77,7 +86,7 @@ public class MainMenu : MonoBehaviour
         StartCoroutine(Anim());
     }
 
-    IEnumerator Play()
+    IEnumerator Play(bool restart)
     {
         StartCoroutine(fadeOutMusic());
 
@@ -98,15 +107,38 @@ public class MainMenu : MonoBehaviour
             g.SetActive(false);
         }
 
-        Lightbulb.Play();
+        if (!restart)
+        {
+            Lightbulb.Play();
+            LightbulbEcho.Play();
+
+            yield return new WaitForSeconds(1f);
+
+            fadeOut.SetBool("Out", true);
+
+            yield return new WaitForSeconds(2f);
+
+            if (PlayerPrefs.GetInt("SkipTo", 0) > 0)
+            {
+                QuerryResetSkipTo.SetActive(true);
+                yield return new WaitUntil(() => chosenResetSkipTo);
+                QuerryResetSkipTo.SetActive(false);
+            }
+
+            yield return new WaitForSeconds(1f);
+        }
          
-        yield return new WaitForSeconds(1f);
-
-        fadeOut.SetBool("Out", true);
-
-        yield return new WaitForSeconds(5f);
 
         SceneManager.LoadScene("Main");
+    }
+
+    public void ResetSkipTo(bool yes)
+    {
+        if (yes)
+        {
+            PlayerPrefs.SetInt("SkipTo", 0);
+        }
+        chosenResetSkipTo = true;
     }
 
     IEnumerator fadeOutMusic()
@@ -164,7 +196,7 @@ public class MainMenu : MonoBehaviour
     public void Continue()
     {
         DifficultyHandler.difficulty = PlayerPrefs.GetInt("Difficulty");
-        StartCoroutine(Play());
+        StartCoroutine(Play(false));
         pressedEnter = true;
         DifficultyHandler.cont = true;
     }

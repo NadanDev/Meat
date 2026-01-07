@@ -10,6 +10,9 @@ public class Pause : MonoBehaviour
     [SerializeField] Scrollbar Volume;
     [SerializeField] AudioMixer mixer;
     [SerializeField] GameObject Player;
+    [SerializeField] GameObject OptionsMenu;
+    [SerializeField] GameObject ControlsMenu;
+    [SerializeField] GameObject MainPauseMenu;
     [SerializeField] TMP_Text DifficultyText;
 
     private void Start()
@@ -26,6 +29,31 @@ public class Pause : MonoBehaviour
         {
             DifficultyText.text = "Easy";
         }
+    }
+
+    public void OpenOptions()
+    {
+        MainPauseMenu.SetActive(false);
+        OptionsMenu.SetActive(true);
+    }
+
+    public void OpenControls()
+    {
+        MainPauseMenu.SetActive(false);
+        ControlsMenu.SetActive(true);
+    }
+
+    public void Back()
+    {
+        OptionsMenu.SetActive(false);
+        ControlsMenu.SetActive(false);
+        MainPauseMenu.SetActive(true);
+    }
+
+    public void RestartDay()
+    {
+        DifficultyHandler.restart = true;
+        SceneManager.LoadScene("MainMenu");
     }
 
     public void SensitivityChanged()

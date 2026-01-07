@@ -2,12 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class Interact : MonoBehaviour
 {
     [Header("Cutting Board References")]
     [SerializeField] Transform cuttingBoardCamera;
     [SerializeField] Animator sliceAnim;
+    [SerializeField] Animator Controls;
     [SerializeField] Transform cuttingBoardCamLoc;
     [SerializeField] ParticleSystem BloodSplatter;
 
@@ -18,6 +20,12 @@ public class Interact : MonoBehaviour
     [SerializeField] TMP_Text BaggerNumberText;
     [SerializeField] Material RedMat;
     [SerializeField] Material GreenMat;
+
+    [Header("Bench References")]
+    [SerializeField] Transform benchCamera;
+    [SerializeField] Transform benchCamLoc;
+    [SerializeField] Animator benchAnim;
+    [SerializeField] Image eyesClosed;
 
     [Header("Meat References")]
     [SerializeField] GameObject MeatPiece1Left;
@@ -59,6 +67,11 @@ public class Interact : MonoBehaviour
     [SerializeField] GameObject FireEffect;
     [SerializeField] GameObject StickObj;
     [SerializeField] GameObject PauseMenu;
+    [SerializeField] GameObject MainPauseMenu;
+    [SerializeField] GameObject OptionsMenu;
+    [SerializeField] GameObject ControlsMenu;
+    [SerializeField] GameObject QuitText;
+    [SerializeField] GameObject RestartText;
     [SerializeField] GameObject HumanoidMonster;
     [SerializeField] GameObject HeadMonster;
     [SerializeField] Animator StickAnim;
@@ -89,7 +102,6 @@ public class Interact : MonoBehaviour
     [SerializeField] AudioSource zap4;
     [SerializeField] AudioSource CookerSwitchSound;
     [SerializeField] AudioSource BaggerClogged;
-    [SerializeField] AudioSource Ambience;
     [SerializeField] AudioSource BaggerUnclog;
     [SerializeField] GameObject MetalDoorOpenLoc;
     [SerializeField] GameObject MetalDoorCloseLoc;
@@ -115,6 +127,7 @@ public class Interact : MonoBehaviour
     private bool dontThrow = false;
     private bool cuttingBoardCameraAnim = false;
     private bool computerCameraAnim = false;
+    private bool benchCameraAnim = false;
     private bool isAnimatingCam = false;
     private bool canAnimateCam = true;
     private bool isAnimatingComputer = false;
@@ -131,6 +144,7 @@ public class Interact : MonoBehaviour
     private bool makeBagCooldown = false;
     private bool paused = false;
     private bool baggerErrorBias = false;
+    private bool hasPressedButtonOnce = false;
     [HideInInspector] public bool cookerSwitchFlipped = false;
 
     private string holdingCookedLevel;
@@ -152,7 +166,6 @@ public class Interact : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(FadeInAmbience());
         // NORMAL
         List<LightmapData> darklightmap = new List<LightmapData>();
 
@@ -192,16 +205,6 @@ public class Interact : MonoBehaviour
         RenderSettings.customReflectionTexture = null;
         probe.customBakedTexture = brightProbe;
         probe.RenderProbe();
-    }
-
-    IEnumerator FadeInAmbience()
-    {
-        Ambience.volume = 0;
-        while (Ambience.volume < 1)
-        {
-            Ambience.volume += 0.01f;
-            yield return new WaitForSeconds(0.01f);
-        }
     }
 
     private void Update()
@@ -372,6 +375,11 @@ public class Interact : MonoBehaviour
                     GrabMarker.GetComponent<RectTransform>().position = new Vector3(rend.bounds.center.x, rend.bounds.center.y + 0.25f, rend.bounds.center.z + 0.4f);
                     InteractMarkers[1].GetComponent<Animator>().SetBool("On", false);
                 }
+                else if (hit.transform.CompareTag("Bench") && !paused && !holdingMeat && !holdingMeatLeft && !holdingMeatRight && EventHandler.i.Day > 1 && EventHandler.i.DayIsGoing && EventHandler.i.SkipTo == 0)
+                {
+                    InteractMarkers[14].GetComponent<Animator>().SetBool("On", true);
+                    GrabMarker.GetComponent<Animator>().SetBool("On", false);
+                }
             }
 
             // DON'T THROW WHEN LOOKING AT SOMETHING
@@ -485,6 +493,49 @@ public class Interact : MonoBehaviour
                 }
 
 
+                if (hit.transform.CompareTag("Bench") && !paused && !holdingMeat && !holdingMeatLeft && !holdingMeatRight && EventHandler.i.Day > 1 && EventHandler.i.DayIsGoing && EventHandler.i.SkipTo == 0)
+                {
+                    InteractMarkers[14].GetComponent<Animator>().SetBool("Press", true);
+                    StartCoroutine(disablePress());
+
+                    PlayerPrefs.SetInt("SkipTo", EventHandler.i.CurOrder);
+
+/*                    int totalDayErrors = 0;
+                    for (int i = 0; i < 11; i++)
+                    {
+                        totalDayErrors += EventHandler.i.Errors[i];
+                    }
+                    PlayerPrefs.SetInt("TotalDayErrors", totalDayErrors);*/
+
+                    string errors = "";
+                    foreach (int i in EventHandler.i.Errors)
+                    {
+                        errors += i.ToString();
+                        errors += " ";
+                    }
+                    PlayerPrefs.SetString("Errors", errors);
+
+                    string failedOrders = "";
+                    foreach (bool i in EventHandler.i.OrdersFailed)
+                    {
+                        if (i)
+                        {
+                            failedOrders += "t";
+                        }
+                        else
+                        {
+                            failedOrders += "f";
+                        }
+                    }
+                    PlayerPrefs.SetString("FailedOrders", failedOrders);
+
+                    PlayerPrefs.SetFloat("FailedPercentAvg", EventHandler.i.FailedPercentAvg);
+                    EventHandler.i.SkipTo = EventHandler.i.CurOrder;
+
+                    Bench();
+                }
+
+
                 if (hit.transform.CompareTag("GreenButton") && canPressButton)
                 {
                     canPressButton = false;
@@ -499,6 +550,12 @@ public class Interact : MonoBehaviour
                     if (EventHandler.i.PiecesInBagger > 0)
                     {
                         int random = Random.Range(0, 6);
+
+                        if (!hasPressedButtonOnce)
+                        {
+                            hasPressedButtonOnce = true;
+                            random = 5;
+                        }
 
                         if (random < 5 && !baggerClogged)
                         {
@@ -547,8 +604,8 @@ public class Interact : MonoBehaviour
 
                 if (hit.transform.CompareTag("BaggerDoorLeft"))
                 {
-                    MetalDoorOpenLoc.transform.position = new Vector3(-33.783f, 4.386f, 26.266f);
-                    MetalDoorCloseLoc.transform.position = new Vector3(-33.783f, 4.386f, 26.266f);
+                    MetalDoorOpenLoc.transform.position = new Vector3(-33.783f, 4.386f, 32.18f);
+                    MetalDoorCloseLoc.transform.position = new Vector3(-33.783f, 4.386f, 32.18f);
 
                     InteractMarkers[2].GetComponent<Animator>().SetBool("Press", true);
                     StartCoroutine(disablePress());
@@ -558,8 +615,8 @@ public class Interact : MonoBehaviour
                 }
                 else if (hit.transform.CompareTag("BaggerDoorRight"))
                 {
-                    MetalDoorOpenLoc.transform.position = new Vector3(-30.218f, 4.386f, 26.266f);
-                    MetalDoorCloseLoc.transform.position = new Vector3(-30.218f, 4.386f, 26.266f);
+                    MetalDoorOpenLoc.transform.position = new Vector3(-30.218f, 4.386f, 32.18f);
+                    MetalDoorCloseLoc.transform.position = new Vector3(-30.218f, 4.386f, 32.18f);
 
                     InteractMarkers[3].GetComponent<Animator>().SetBool("Press", true);
                     StartCoroutine(disablePress());
@@ -790,6 +847,19 @@ public class Interact : MonoBehaviour
         {
             paused = true;
             PauseMenu.SetActive(true);
+            MainPauseMenu.SetActive(true);
+            OptionsMenu.SetActive(false);
+            ControlsMenu.SetActive(false);
+            if (EventHandler.i.SkipTo > 0)
+            {
+                RestartText.SetActive(true);
+                QuitText.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, -100f, 0);
+            }
+            else
+            {
+                RestartText.SetActive(false);
+                QuitText.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, -20f, 0);
+            }
             if (!isComputer && !isCuttingBoard)
             {
                 Cursor.visible = true;
@@ -1164,6 +1234,52 @@ public class Interact : MonoBehaviour
                 }
             }
         }
+
+        if (benchCameraAnim)
+        {
+            if (Quaternion.Angle(benchCamera.rotation, benchCamLoc.rotation) > 1f)
+            {
+                benchCamera.position = Vector3.Lerp(benchCamera.position, benchCamLoc.position, 4f * Time.deltaTime);
+                benchCamera.rotation = Quaternion.Slerp(benchCamera.rotation, benchCamLoc.rotation, 4f * Time.deltaTime);
+            }
+            else if (Quaternion.Angle(benchCamera.rotation, benchCamLoc.rotation) > 0f)
+            {
+                benchCamera.position = Vector3.MoveTowards(benchCamera.position, benchCamLoc.position, 0.1f * Time.deltaTime);
+                benchCamera.rotation = Quaternion.RotateTowards(benchCamera.rotation, benchCamLoc.rotation, 5 * Time.deltaTime);
+            }
+            else
+            {
+                benchAnim.enabled = true;
+                StartCoroutine("BenchAnimTimer");
+                benchCameraAnim = false;
+            }
+        }
+    }
+
+    IEnumerator BenchAnimTimer()
+    {
+        eyesClosed.transform.parent.gameObject.SetActive(true);
+        benchAnim.SetBool("Begin", true);
+
+        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(2.5f);
+        benchAnim.SetBool("Begin", false);
+        yield return new WaitForSeconds(5f);
+
+        canAnimateCam = true;
+
+        GetComponent<PlayerMove>().enabled = true;
+        GetComponent<CameraRotation>().enabled = true;
+
+        benchCamera.gameObject.SetActive(false);
+        playerCamera.gameObject.SetActive(true);
+
+        GameObject.Find("Player").transform.position = new Vector3(benchCamLoc.position.x, 1.47936f, benchCamLoc.position.z);
+        playerCamera.transform.position = new Vector3(benchCamLoc.position.x, 1.47936f, benchCamLoc.position.z);
+        playerCamera.transform.rotation = Quaternion.Euler(0, -90, 0);
+        GameObject.Find("Player").GetComponent<CameraRotation>().yRot = -90f;
+        GameObject.Find("Player").GetComponent<CameraRotation>().xRot = 0;
+        eyesClosed.transform.parent.gameObject.SetActive(false);
     }
 
     private void Computer()
@@ -1193,6 +1309,78 @@ public class Interact : MonoBehaviour
 
             computerCameraAnim = true;
         }
+    }
+
+    private void Bench()
+    {
+        if (canAnimateCam)
+        {
+            GetComponent<Rigidbody>().linearVelocity = new Vector3(0, 0, 0);
+
+            canAnimateCam = false;
+
+            GetComponent<PlayerMove>().enabled = false;
+            GetComponent<CameraRotation>().enabled = false;
+
+            benchCamera.transform.position = playerCamera.transform.position;
+            benchCamera.transform.rotation = playerCamera.transform.rotation;
+            playerCamera.gameObject.SetActive(false);
+            benchCamera.gameObject.SetActive(true);
+
+            benchAnim.enabled = false;
+            benchCameraAnim = true;
+        }
+    }
+
+    public IEnumerator LoadFromBench(bool slow)
+    {
+        GetComponent<PlayerMove>().enabled = false;
+        GetComponent<CameraRotation>().enabled = false;
+
+        benchAnim.enabled = false;
+
+        eyesClosed.transform.parent.gameObject.SetActive(true);
+        eyesClosed.color = new Color(0, 0, 0, 255);
+
+        yield return new WaitForSeconds(6f);
+
+        benchAnim.enabled = true;
+
+        playerCamera.gameObject.SetActive(false);
+        benchCamera.gameObject.SetActive(true);
+
+        if (slow)
+        {
+            benchAnim.SetBool("StandUpSlow", true);
+            // FADE OUT SOUND (Fade in)
+            EventHandler.i.StartCoroutine("fadeInAmbience", 80);
+            yield return new WaitForSeconds(4.75f);
+            benchAnim.SetBool("StandUpSlow", false);
+        }
+        else
+        {
+            benchAnim.SetBool("StandUp", true);
+            // FADE OUT SOUND (cut in)
+            EventHandler.i.StartCoroutine("fadeInAmbience", 99);
+            yield return new WaitForSeconds(4.5f);
+            benchAnim.SetBool("StandUp", false);
+        }
+
+        GetComponent<PlayerMove>().enabled = true;
+        GetComponent<CameraRotation>().enabled = true;
+
+        benchCamera.gameObject.SetActive(false);
+        playerCamera.gameObject.SetActive(true);
+
+        GameObject.Find("Player").transform.position = new Vector3(benchCamLoc.position.x, 1.47936f, benchCamLoc.position.z);
+        playerCamera.transform.position = new Vector3(benchCamLoc.position.x, 1.47936f, benchCamLoc.position.z);
+        playerCamera.transform.rotation = Quaternion.Euler(0, -90, 0);
+        GameObject.Find("Player").GetComponent<CameraRotation>().yRot = -90f;
+        GameObject.Find("Player").GetComponent<CameraRotation>().xRot = 0;
+
+        benchAnim.enabled = false;
+
+        eyesClosed.transform.parent.gameObject.SetActive(false);
     }
 
     private void CuttingBoard()
@@ -1618,6 +1806,7 @@ public class Interact : MonoBehaviour
         }
     }
 
+    private bool hasTriggeredTutorialText = false;
     private IEnumerator SliceKnife()
     {
         RaycastHit hit;
@@ -1633,6 +1822,14 @@ public class Interact : MonoBehaviour
         sliceAnim.SetBool("Slice", false);
         yield return new WaitForSeconds(0.5f);
         knifeCooldown = true;
+
+        if (!hasTriggeredTutorialText && EventHandler.i.Day == 1)
+        {
+            Controls.SetBool("PickUpText", true);
+            yield return new WaitForSeconds(3f);
+            Controls.SetBool("PickUpText", false);
+            hasTriggeredTutorialText = true;
+        }
     }
 
     public void Access()

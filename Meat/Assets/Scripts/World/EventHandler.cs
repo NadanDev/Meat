@@ -9,6 +9,8 @@ public class EventHandler : MonoBehaviour
     public static EventHandler i { get; private set; }
 
     private int day = 1;
+    private int skipTo = 0;
+    private int curOrder = 0;
     private int piecesInBagger = 0;
     private int piecesInHeldBag = 0;
     private int foodFed = 0;
@@ -17,6 +19,7 @@ public class EventHandler : MonoBehaviour
     private int difficulty = 0; // 0 = Hard, 1 = Medium, 2 = Easy
 
     private float timer = 0;
+    private float failedPercentAvg;
 
     private bool meatOnBoard = false;
     private bool dayIsGoing = false;
@@ -41,6 +44,7 @@ public class EventHandler : MonoBehaviour
     private int[,] orders = new int[16, 11]; // What needs to be done
     private int[] ordersCombined = new int[11]; // What needs to be done (combined into one)
     private int[] errors = new int[11];
+    private int[] errorsMidOrder = new int[11];
 
     private bool[] ordersComplete = new bool[16]; // Which of the 16 orders are complete
     private bool[] ordersFailed = new bool[16]; // Failed
@@ -54,9 +58,11 @@ public class EventHandler : MonoBehaviour
     private AudioSource[] conveyorAudioSources;
     public AudioSource Alarm;
 
+    // BEGINNING
     private void Awake()
     {
         difficulty = DifficultyHandler.difficulty;
+        skipTo = PlayerPrefs.GetInt("SkipTo", 0);
 
         if (i != null && i != this)
         {
@@ -113,6 +119,7 @@ public class EventHandler : MonoBehaviour
             newMessageNotif.SetActive(true);
 
             PlayerPrefs.SetInt("Day", 1);
+            PlayerPrefs.SetInt("SkipTo", 0);
             StartCoroutine(StartingUIAnim("MONDAY", false));
         }
     }
@@ -121,6 +128,16 @@ public class EventHandler : MonoBehaviour
     {
         get => day;
         set { day = value; }
+    }
+    public int SkipTo
+    {
+        get => skipTo;
+        set { skipTo = value; }
+    }
+    public int CurOrder
+    {
+        get => curOrder;
+        set { curOrder = value; }
     }
     public int PiecesInBagger
     {
@@ -157,6 +174,11 @@ public class EventHandler : MonoBehaviour
     {
         get => timer;
         set { timer = value; }
+    }
+    public float FailedPercentAvg
+    {
+        get => failedPercentAvg;
+        set { failedPercentAvg = value; }
     }
 
 
@@ -258,6 +280,11 @@ public class EventHandler : MonoBehaviour
     {
         get => errors;
         set { errors = value; }
+    }
+    public int[] ErrorsMidOrder
+    {
+        get => errorsMidOrder;
+        set { errorsMidOrder = value; }
     }
     public int[,] Orders
     {
@@ -422,6 +449,7 @@ public class EventHandler : MonoBehaviour
     public TMP_Text TimeDisplayText;
     public Animator FadeIn;
     public Animator Door;
+    public Animator Controls;
     public AudioSource Type;
     public AudioSource SpiderRoar;
     public AudioSource SpiderInRoom;
@@ -431,6 +459,7 @@ public class EventHandler : MonoBehaviour
     public AudioSource RightOrder;
     public AudioSource MonsterCall;
     public AudioSource spiderEat;
+    public AudioSource Ambience;
 
     private bool startTimer = false;
     private bool spiderInEffect = false;
@@ -438,8 +467,6 @@ public class EventHandler : MonoBehaviour
     private bool wormInEffect = false;
 
     private int attempt = 0;
-
-    private float failedPercentAvg;
 
     private void Update()
     {
@@ -469,6 +496,38 @@ public class EventHandler : MonoBehaviour
 
     public void startDay()
     {
+        skipTo = PlayerPrefs.GetInt("SkipTo", 0);
+        if (skipTo > 0) // Load failures
+        {
+            //totalDayErrors = PlayerPrefs.GetInt("TotalDayErrors", 0);
+            string errors = PlayerPrefs.GetString("Errors");
+            string current = "";
+            int iteration = 0;
+            for (int i = 0; i < errors.Length; i++)
+            {
+                if (errors[i] == ' ')
+                {
+                    Errors[iteration] = int.Parse(current);
+                    current = "";
+                    iteration++;
+                    continue;
+                }
+                current += errors[i];
+            }
+            string failedOrdersString = PlayerPrefs.GetString("FailedOrders");
+            for (int i = 0; i < 16; i++)
+            {
+                if (failedOrdersString[i] == 't')
+                {
+                    ordersFailed[i] = true;
+                }
+                else
+                {
+                    ordersFailed[i] = false;
+                }
+            }
+        }
+
         if (day == 1)
         {
             StartCoroutine("Day1");
@@ -499,11 +558,13 @@ public class EventHandler : MonoBehaviour
 
         attempt++;
         dayDone = false;
+        meatOnBoard = false;
         orderContents = new string[16];
         ordersSent = new int[11];
         orders = new int[16, 11];
         ordersCombined = new int[11];
         errors = new int[11];
+        errorsMidOrder = new int[11];
         ordersComplete = new bool[16];
         ordersFailed = new bool[16];
         piecesInBagger = 0;
@@ -582,8 +643,40 @@ public class EventHandler : MonoBehaviour
 
         isInStartingAnim = false;
         FadeIn.SetBool("Fade", false);
-        yield return new WaitForSeconds(4f);
+        yield return new WaitForSeconds(1f);
+        // FADE OUT SOUND (fade in)
+        if (Day == 1)
+        {
+            StartCoroutine("fadeInAmbience", 0);
+        }
+        yield return new WaitForSeconds(3f);
         StartUIText.text = "";
+    }
+
+    public IEnumerator fadeOutAmbience(int multiplier = 0)
+    {
+        if (multiplier >= 100)
+        {
+            multiplier = 99;
+        }
+        while (Ambience.volume > 0)
+        {
+            Ambience.volume -= 0.01f;
+            yield return new WaitForSeconds(0.02f - 0.0002f * multiplier);
+        }
+    }
+
+    public IEnumerator fadeInAmbience(int multiplier = 0)
+    {
+        if (multiplier >= 100)
+        {
+            multiplier = 99;
+        }
+        while (Ambience.volume < 1)
+        {
+            Ambience.volume += 0.01f;
+            yield return new WaitForSeconds(0.02f - 0.0002f * multiplier);
+        }
     }
 
     public void runStartingAnimCoroutine(string day, bool isFired)
@@ -591,10 +684,17 @@ public class EventHandler : MonoBehaviour
         StartCoroutine(EventHandler.i.StartingUIAnim(day, isFired));
     }
 
-    public void checkmarkOrder(int orderNum)
+    public void checkmarkOrder(int orderNum, bool quiet)
     {
+        curOrder++;
+        for (int i = 0; i < 11; i++)
+        {
+            errors[i] += errorsMidOrder[i];
+        }
+        errorsMidOrder = new int[11];
+
         OrderCheckmarks[orderNum].SetActive(true);
-        OrderComplete.Play();
+        if (!quiet) OrderComplete.Play();
     }
 
     private void clearMeatFromScene()
@@ -765,18 +865,22 @@ public class EventHandler : MonoBehaviour
             if (Errors[10] > 0 && day > 3)
             {
                 summaries[day] += $"You sent {Errors[10]} too many jars of meat\n";
-                totalDayErrors += Errors[9];
+                totalDayErrors += Errors[10];
             }
 
             if (numOrdersFailed > 0)
             {
-                summaries[day] += $"\nYou failed {numOrdersFailed} orders and completed an average of {(int)((failedPercentAvg / numOrdersFailed) * 100)}% for each\n"; 
+                summaries[day] += $"\nYou failed {numOrdersFailed} orders and completed an average of {100 - (int)((failedPercentAvg / numOrdersFailed) * 100)}% for each\n"; 
             }
             else
             {
                 summaries[day] += $"\nYou failed {numOrdersFailed} orders";
             }
-            totalDayErrors += (int)(3 * numOrdersFailed * (failedPercentAvg / numOrdersFailed));
+
+            if (numOrdersFailed != 0)
+            {
+                totalDayErrors += (int)(3 * numOrdersFailed * (failedPercentAvg / numOrdersFailed));
+            }
 
             UnreadsSummary[day].enabled = true;
             dayDone = true;
@@ -1176,6 +1280,10 @@ public class EventHandler : MonoBehaviour
         yield return new WaitForSeconds(conveyorAudioSources[0].clip.length - 0.1f);
         conveyorAudioSources[1].Play();
 
+        Controls.SetBool("PauseText", true);
+        yield return new WaitForSeconds(3f);
+        Controls.SetBool("PauseText", false);
+
         Day1Text();
 
 
@@ -1350,146 +1458,265 @@ public class EventHandler : MonoBehaviour
 
         failedPercentAvg = 0;
 
+        if (skipTo > 0)
+        {
+            failedPercentAvg = PlayerPrefs.GetFloat("FailedPercentAvg", 0);
+            GameObject.Find("Player").GetComponent<Interact>().StartCoroutine("LoadFromBench", false);
+            yield return new WaitForSeconds(6f);
+        }
+
         runnerInEffect = true;
         StartCoroutine("RandomizeRunner");
          
         TimeText.gameObject.SetActive(true);
 
-        conveyorAudioSources[0].Play();
-        yield return new WaitForSeconds(conveyorAudioSources[0].clip.length - 0.1f);
+        if (skipTo == 0)
+        {
+            conveyorAudioSources[0].Play();
+            yield return new WaitForSeconds(conveyorAudioSources[0].clip.length - 0.1f);
+        }
         conveyorAudioSources[1].Play();
 
         Day2Text();
 
 
         // ORDER 1
-        yield return new WaitForSeconds(2f);
-        dailyLog.Add($"- {(int)timer} seconds: Order 1 requested");
-        computerScript.updateLog();
-        requestedByTimes[0] = 65 + (15 * difficulty) + (int)timer;
-        Day2Text();
         OrderTags[0].SetActive(true);
-        Orders[0, 0] = 3;
-        OrdersCombined[0] += 3;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 1)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 0;
+            dailyLog.Add($"- {(int)timer} seconds: Order 1 requested");
+            computerScript.updateLog();
+            requestedByTimes[0] = 65 + (15 * difficulty) + (int)timer;
+            Day2Text();
+            Orders[0, 0] = 3;
+            OrdersCombined[0] += 3;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(65 + (15 * difficulty), 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            StartCoroutine(OrderTimer(65 + (15 * difficulty), 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
 
 
-        yield return new WaitForSeconds(63f + (15 * difficulty));
+            yield return new WaitForSeconds(63f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 67f + (15f * difficulty);
+            OrdersComplete[0] = true;
+            if (ordersFailed[0])
+            {
+                OrderX[0].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(0, true);
+            }
+        }
 
 
 
         // ORDER 2
-        dailyLog.Add($"- {(int)timer} seconds: Order 2 requested");
-        computerScript.updateLog();
-        requestedByTimes[1] = 85 + (15 * difficulty) + (int)timer;
-        Day2Text();
         OrderTags[1].SetActive(true);
-        Orders[1, 4] = 1;
-        OrdersCombined[4] += 1;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 2)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 1;
+            dailyLog.Add($"- {(int)timer} seconds: Order 2 requested");
+            computerScript.updateLog();
+            requestedByTimes[1] = 85 + (15 * difficulty) + (int)timer;
+            Day2Text();
+            Orders[1, 4] = 1;
+            OrdersCombined[4] += 1;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(85 + (15 * difficulty), 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            StartCoroutine(OrderTimer(85 + (15 * difficulty), 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
 
 
-        yield return new WaitForSeconds(83f + (15 * difficulty));
+            yield return new WaitForSeconds(83f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 87f + (15f * difficulty);
+            OrdersComplete[1] = true;
+
+            if (ordersFailed[1])
+            {
+                OrderX[1].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(1, true);
+            }
+
+            if (skipTo == 1)
+            {
+                yield return new WaitForSeconds(7f);
+            }
+        }
 
 
 
         // ORDER 3
-        dailyLog.Add($"- {(int)timer} seconds: Order 3 requested");
-        computerScript.updateLog();
-        requestedByTimes[2] = 95 + (15 * difficulty) + (int)timer;
-        Day2Text();
         OrderTags[2].SetActive(true);
-        Orders[2, 0] = 2;
-        Orders[2, 5] = 1;
-        OrdersCombined[0] += 2;
-        OrdersCombined[5] += 1;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 3)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 2;
+            dailyLog.Add($"- {(int)timer} seconds: Order 3 requested");
+            computerScript.updateLog();
+            requestedByTimes[2] = 95 + (15 * difficulty) + (int)timer;
+            Day2Text();
+            Orders[2, 0] = 2;
+            Orders[2, 5] = 1;
+            OrdersCombined[0] += 2;
+            OrdersCombined[5] += 1;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(95 + (15 * difficulty), 2, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            StartCoroutine(OrderTimer(95 + (15 * difficulty), 2, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
 
 
-        yield return new WaitForSeconds(87f + (15 * difficulty));
+            yield return new WaitForSeconds(87f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 97f + (15f * difficulty);
+            OrdersComplete[2] = true;
+
+            if (ordersFailed[2])
+            {
+                OrderX[2].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(2, true);
+            }
+
+            if (skipTo == 2)
+            {
+                yield return new WaitForSeconds(7f);
+            }
+        }
 
 
 
         // ORDER 4
-        dailyLog.Add($"- {(int)timer} seconds: Order 4 requested");
-        requestedByTimes[3] = 110 + (15 * difficulty) + (int)timer;
-        Day2Text();
         OrderTags[3].SetActive(true);
-        Orders[3, 3] = 3;
-        OrdersCombined[3] += 3;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 4)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 3;
+            dailyLog.Add($"- {(int)timer} seconds: Order 4 requested");
+            requestedByTimes[3] = 110 + (15 * difficulty) + (int)timer;
+            Day2Text();
+            Orders[3, 3] = 3;
+            OrdersCombined[3] += 3;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(110 + (15 * difficulty), 3, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-
-
-
-        yield return new WaitForSeconds(105f + (15 * difficulty));
-
-
-/*
-        // ORDER 5
-        dailyLog.Add($"- {(int)timer} seconds: Order 5 requested");
-        computerScript.updateLog();
-        requestedByTimes[4] = 110 + (15 * difficulty) + (int)timer;
-        Day2Text();
-        OrderTags[4].SetActive(true);
-        Orders[4, 0] = 3;
-        Orders[4, 4] = 2;
-        OrdersCombined[0] += 3;
-        OrdersCombined[4] += 2;
-        yield return new WaitForSeconds(1f);
-
-        StartCoroutine(OrderTimer(110 + (15 * difficulty), 4, 3, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            StartCoroutine(OrderTimer(110 + (15 * difficulty), 3, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
 
 
-        yield return new WaitForSeconds(99f + (15 * difficulty));*/
+            yield return new WaitForSeconds(105f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 112f + (15f * difficulty);
+            OrdersComplete[3] = true;
+
+            if (ordersFailed[3])
+            {
+                OrderX[3].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(3, true);
+            }
+
+            if (skipTo == 3)
+            {
+                yield return new WaitForSeconds(7f);
+            }
+        }
+
+
+        /*
+                // ORDER 5
+                dailyLog.Add($"- {(int)timer} seconds: Order 5 requested");
+                computerScript.updateLog();
+                requestedByTimes[4] = 110 + (15 * difficulty) + (int)timer;
+                Day2Text();
+                OrderTags[4].SetActive(true);
+                Orders[4, 0] = 3;
+                Orders[4, 4] = 2;
+                OrdersCombined[0] += 3;
+                OrdersCombined[4] += 2;
+                yield return new WaitForSeconds(1f);
+
+                StartCoroutine(OrderTimer(110 + (15 * difficulty), 4, 3, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0));
+                Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+                Alarm.Play();
+                StartCoroutine(switchRed());
+                yield return new WaitForSeconds(3f);
+                Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+                yield return new WaitForSeconds(3f);
+                Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+                yield return new WaitForSeconds(3f);
+                Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+                yield return new WaitForSeconds(3f);
+                Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+
+
+
+                yield return new WaitForSeconds(99f + (15 * difficulty));*/
 
 
 
@@ -1521,6 +1748,11 @@ public class EventHandler : MonoBehaviour
 
         yield return new WaitForSeconds(78f + (15 * difficulty));*/
 
+        for (int i = 0; i < 11; i++)
+        {
+            errors[i] += errorsMidOrder[i];
+        }
+        errorsMidOrder = new int[11];
         finishDay(1);
     }
 
@@ -1561,199 +1793,356 @@ public class EventHandler : MonoBehaviour
 
         TimeText.gameObject.SetActive(true);
 
-        conveyorAudioSources[0].Play();
-        yield return new WaitForSeconds(conveyorAudioSources[0].clip.length - 0.1f);
+        if (skipTo == 0)
+        {
+            conveyorAudioSources[0].Play();
+            yield return new WaitForSeconds(conveyorAudioSources[0].clip.length - 0.1f);
+        }
         conveyorAudioSources[1].Play();
 
         Day3Text();
 
+        if (skipTo > 0)
+        {
+            GameObject.Find("Player").GetComponent<Interact>().StartCoroutine("LoadFromBench", false);
+            yield return new WaitForSeconds(10f);
+            yield return new WaitForSeconds(7f);
+        }
+
+
+        yield return new WaitForSeconds(2f);
 
         // ORDER 1
-        yield return new WaitForSeconds(2f);
-        dailyLog.Add($"- {(int)timer} seconds: Order 1 requested");
-        computerScript.updateLog();
-        requestedByTimes[0] = 60 + (15 * difficulty) + (int)timer;
-        Day3Text();
         OrderTags[0].SetActive(true);
-        Orders[0, 0] = 1;
-        Orders[0, 1] = 1;
-        OrdersCombined[0] += 1;
-        OrdersCombined[1] += 1;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 1)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 0;
+            dailyLog.Add($"- {(int)timer} seconds: Order 1 requested");
+            computerScript.updateLog();
+            requestedByTimes[0] = 60 + (15 * difficulty) + (int)timer;
+            Day3Text();
+            Orders[0, 0] = 1;
+            Orders[0, 1] = 1;
+            OrdersCombined[0] += 1;
+            OrdersCombined[1] += 1;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(60 + (15 * difficulty), 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            StartCoroutine(OrderTimer(60 + (15 * difficulty), 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
 
 
-        yield return new WaitForSeconds(55f + (15 * difficulty));
+            yield return new WaitForSeconds(55f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 62f + (15f * difficulty);
+            OrdersComplete[0] = true;
+
+            if (ordersFailed[0])
+            {
+                OrderX[0].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(0, true);
+            }
+        }
 
 
 
         // ORDER 2
-        dailyLog.Add($"- {(int)timer} seconds: Order 2 requested");
-        computerScript.updateLog();
-        requestedByTimes[1] = 110 + (15 * difficulty) + (int)timer;
-        Day3Text();
         OrderTags[1].SetActive(true);
-        Orders[1, 6] = 1;
-        Orders[1, 7] = 1;
-        OrdersCombined[6] += 1;
-        OrdersCombined[7] += 1;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 2)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 1;
+            dailyLog.Add($"- {(int)timer} seconds: Order 2 requested");
+            computerScript.updateLog();
+            requestedByTimes[1] = 110 + (15 * difficulty) + (int)timer;
+            Day3Text();
+            Orders[1, 6] = 1;
+            Orders[1, 7] = 1;
+            OrdersCombined[6] += 1;
+            OrdersCombined[7] += 1;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(110 + (15 * difficulty), 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        spiderInEffect = true;
-        StartCoroutine("SpiderMonster");
+            StartCoroutine(OrderTimer(110 + (15 * difficulty), 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            spiderInEffect = true;
+            StartCoroutine("SpiderMonster");
 
 
 
-        yield return new WaitForSeconds(105f + (15 * difficulty));
+            yield return new WaitForSeconds(105f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 112f + (15f * difficulty);
+            OrdersComplete[1] = true;
+
+            if (ordersFailed[1])
+            {
+                OrderX[1].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(1, true);
+            }
+
+            StartCoroutine("SpiderMonster");
+        }
 
 
 
         // ORDER 3
-        dailyLog.Add($"- {(int)timer} seconds: Order 3 requested");
-        computerScript.updateLog();
-        requestedByTimes[2] = 120 + (15 * difficulty) + (int)timer;
-        Day3Text();
         OrderTags[2].SetActive(true);
-        Orders[2, 1] = 1;
-        Orders[2, 3] = 1;
-        Orders[2, 8] = 1;
-        OrdersCombined[1] += 1;
-        OrdersCombined[3] += 1;
-        OrdersCombined[8] += 1;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 3)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 2;
+            dailyLog.Add($"- {(int)timer} seconds: Order 3 requested");
+            computerScript.updateLog();
+            requestedByTimes[2] = 120 + (15 * difficulty) + (int)timer;
+            Day3Text();
+            Orders[2, 1] = 1;
+            Orders[2, 3] = 1;
+            Orders[2, 8] = 1;
+            OrdersCombined[1] += 1;
+            OrdersCombined[3] += 1;
+            OrdersCombined[8] += 1;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(120 + (15 * difficulty), 2, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            StartCoroutine(OrderTimer(120 + (15 * difficulty), 2, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
 
 
-        yield return new WaitForSeconds(112f + (15 * difficulty));
+            yield return new WaitForSeconds(112f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 122f + (15f * difficulty);
+            OrdersComplete[2] = true;
+
+            if (ordersFailed[2])
+            {
+                OrderX[2].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(2, true);
+            }
+        }
 
 
 
         // ORDER 4
-        dailyLog.Add($"- {(int)timer} seconds: Order 4 requested");
-        computerScript.updateLog();
-        requestedByTimes[3] = 120 + (15 * difficulty) + (int)timer;
-        Day3Text();
         OrderTags[3].SetActive(true);
-        Orders[3, 0] = 3;
-        Orders[3, 2] = 1;
-        Orders[3, 9] = 2;
-        OrdersCombined[0] += 3;
-        OrdersCombined[2] += 1;
-        OrdersCombined[9] += 2;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 4)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 3;
+            dailyLog.Add($"- {(int)timer} seconds: Order 4 requested");
+            computerScript.updateLog();
+            requestedByTimes[3] = 120 + (15 * difficulty) + (int)timer;
+            Day3Text();
+            Orders[3, 0] = 3;
+            Orders[3, 2] = 1;
+            Orders[3, 9] = 2;
+            OrdersCombined[0] += 3;
+            OrdersCombined[2] += 1;
+            OrdersCombined[9] += 2;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(120 + (15 * difficulty), 3, 3, 0, 1, 0, 0, 0, 0, 0, 0, 2, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            StartCoroutine(OrderTimer(120 + (15 * difficulty), 3, 3, 0, 1, 0, 0, 0, 0, 0, 0, 2, 0));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
 
 
-        yield return new WaitForSeconds(106f + (15 * difficulty));
+            yield return new WaitForSeconds(106f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 122f + (15f * difficulty);
+            OrdersComplete[3] = true;
+
+            if (ordersFailed[3])
+            {
+                OrderX[3].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(3, true);
+            }
+        }
 
 
 
         // ORDER 5
-        dailyLog.Add($"- {(int)timer} seconds: Order 5 requested");
-        computerScript.updateLog();
-        requestedByTimes[4] = 120 + (15 * difficulty) + (int)timer;
-        Day3Text();
         OrderTags[4].SetActive(true);
-        Orders[4, 6] = 1;
-        Orders[4, 7] = 1;
-        Orders[4, 8] = 1;
-        Orders[4, 9] = 1;
-        OrdersCombined[6] += 1;
-        OrdersCombined[7] += 1;
-        OrdersCombined[8] += 1;
-        OrdersCombined[9] += 1;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 5)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 4;
+            dailyLog.Add($"- {(int)timer} seconds: Order 5 requested");
+            computerScript.updateLog();
+            requestedByTimes[4] = 120 + (15 * difficulty) + (int)timer;
+            Day3Text();
+            Orders[4, 6] = 1;
+            Orders[4, 7] = 1;
+            Orders[4, 8] = 1;
+            Orders[4, 9] = 1;
+            OrdersCombined[6] += 1;
+            OrdersCombined[7] += 1;
+            OrdersCombined[8] += 1;
+            OrdersCombined[9] += 1;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(120 + (15 * difficulty), 4, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            StartCoroutine(OrderTimer(120 + (15 * difficulty), 4, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
 
 
-        yield return new WaitForSeconds(106f + (15 * difficulty));
+            yield return new WaitForSeconds(106f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 119f + (15f * difficulty);
+            OrdersComplete[4] = true;
+
+            if (ordersFailed[4])
+            {
+                OrderX[4].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(4, true);
+            }
+        }
 
 
 
         // ORDER 6
-        dailyLog.Add($"- {(int)timer} seconds: Order 6 requested");
-        computerScript.updateLog();
-        requestedByTimes[5] = 100 + (15 * difficulty) + (int)timer;
-        Day3Text();
         OrderTags[5].SetActive(true);
-        Orders[5, 0] = 2;
-        Orders[5, 1] = 1;
-        Orders[5, 2] = 1;
-        OrdersCombined[0] += 2;
-        OrdersCombined[1] += 1;
-        OrdersCombined[2] += 1;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 6)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 5;
+            dailyLog.Add($"- {(int)timer} seconds: Order 6 requested");
+            computerScript.updateLog();
+            requestedByTimes[5] = 100 + (15 * difficulty) + (int)timer;
+            Day3Text();
+            Orders[5, 0] = 2;
+            Orders[5, 1] = 1;
+            Orders[5, 2] = 1;
+            OrdersCombined[0] += 2;
+            OrdersCombined[1] += 1;
+            OrdersCombined[2] += 1;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(100 + (15 * difficulty), 5, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            StartCoroutine(OrderTimer(100 + (15 * difficulty), 5, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
 
 
-        yield return new WaitForSeconds(89f + (15 * difficulty));
+            yield return new WaitForSeconds(89f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 99f + (15f * difficulty);
+            OrdersComplete[5] = true;
+
+            if (ordersFailed[5])
+            {
+                OrderX[5].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(5, true);
+            }
+        }
 
 
 
@@ -1795,11 +2184,17 @@ public class EventHandler : MonoBehaviour
 
 
         // ORDER 8
+        for (int i = 0; i < 11; i++)
+        {
+            errors[i] += errorsMidOrder[i];
+        }
+        errorsMidOrder = new int[11];
+        curOrder = 6;
+        OrderTags[6].SetActive(true);
         dailyLog.Add($"- {(int)timer} seconds: Order 8 requested");
         computerScript.updateLog();
         requestedByTimes[6] = 45 + (int)timer;
         Day3Text();
-        OrderTags[6].SetActive(true);
         yield return new WaitForSeconds(1f);
 
         Instantiate(Arm, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
@@ -1812,9 +2207,14 @@ public class EventHandler : MonoBehaviour
 
         yield return new WaitForSeconds(32f);
         ordersComplete[6] = true;
-        checkmarkOrder(6);
+        checkmarkOrder(6, true);
         yield return new WaitForSeconds(10f);
 
+        for (int i = 0; i < 11; i++)
+        {
+            errors[i] += errorsMidOrder[i];
+        }
+        errorsMidOrder = new int[11];
         finishDay(2);
     }
 
@@ -1858,205 +2258,364 @@ public class EventHandler : MonoBehaviour
 
         TimeText.gameObject.SetActive(true);
 
-        conveyorAudioSources[0].Play();
-        yield return new WaitForSeconds(conveyorAudioSources[0].clip.length - 0.1f);
+        if (skipTo == 0)
+        {
+            conveyorAudioSources[0].Play();
+            yield return new WaitForSeconds(conveyorAudioSources[0].clip.length - 0.1f);
+        }
         conveyorAudioSources[1].Play();
 
         Day4Text();
 
+        if (skipTo > 0)
+        {
+            GameObject.Find("Player").GetComponent<Interact>().StartCoroutine("LoadFromBench", false);
+            yield return new WaitForSeconds(10f);
+            yield return new WaitForSeconds(7f);
+        }
+
+
+        yield return new WaitForSeconds(2f);
 
         // ORDER 1
-        yield return new WaitForSeconds(2f);
-        dailyLog.Add($"- {(int)timer} seconds: Order 1 requested");
-        computerScript.updateLog();
-        requestedByTimes[0] = 50 + (15 * difficulty) + (int)timer;
-        Day4Text();
         OrderTags[0].SetActive(true);
-        Orders[0, 0] = 1;
-        Orders[0, 1] = 2;
-        OrdersCombined[0] += 1;
-        OrdersCombined[1] += 2;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 1)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 0;
+            yield return new WaitForSeconds(2f);
+            dailyLog.Add($"- {(int)timer} seconds: Order 1 requested");
+            computerScript.updateLog();
+            requestedByTimes[0] = 50 + (15 * difficulty) + (int)timer;
+            Day4Text();
+            Orders[0, 0] = 1;
+            Orders[0, 1] = 2;
+            OrdersCombined[0] += 1;
+            OrdersCombined[1] += 2;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(50 + (15 * difficulty), 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            StartCoroutine(OrderTimer(50 + (15 * difficulty), 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
 
 
-        yield return new WaitForSeconds(39f + (15 * difficulty));
+            yield return new WaitForSeconds(39f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 52f + (15f * difficulty);
+            OrdersComplete[0] = true;
+
+            if (ordersFailed[0])
+            {
+                OrderX[0].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(0, true);
+            }
+        }
 
 
 
         // ORDER 2
-        dailyLog.Add($"- {(int)timer} seconds: Order 2 requested");
-        computerScript.updateLog();
-        requestedByTimes[1] = 90 + (15 * difficulty) + (int)timer;
-        Day4Text();
         OrderTags[1].SetActive(true);
-        Orders[1, 0] = 1;
-        Orders[1, 8] = 2;
-        OrdersCombined[0] += 1;
-        OrdersCombined[8] += 2;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 2)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 1;
+            dailyLog.Add($"- {(int)timer} seconds: Order 2 requested");
+            computerScript.updateLog();
+            requestedByTimes[1] = 90 + (15 * difficulty) + (int)timer;
+            Day4Text();
+            Orders[1, 0] = 1;
+            Orders[1, 8] = 2;
+            OrdersCombined[0] += 1;
+            OrdersCombined[8] += 2;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(90 + (15 * difficulty), 1, 1, 0, 1, 0, 0, 0, 0, 0, 2, 0, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        spiderInEffect = true;
-        wormInEffect = true;
-        StartCoroutine("SpiderMonster");
-        StartCoroutine("WormMonster");
+            StartCoroutine(OrderTimer(90 + (15 * difficulty), 1, 1, 0, 1, 0, 0, 0, 0, 0, 2, 0, 0));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            spiderInEffect = true;
+            wormInEffect = true;
+            StartCoroutine("SpiderMonster");
+            StartCoroutine("WormMonster");
 
 
 
-        yield return new WaitForSeconds(82f + (15 * difficulty));
+            yield return new WaitForSeconds(82f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 92f + (15f * difficulty);
+            OrdersComplete[1] = true;
+
+            if (ordersFailed[1])
+            {
+                OrderX[1].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(1, true);
+            }
+
+            StartCoroutine("SpiderMonster");
+            StartCoroutine("WormMonster");
+        }
 
 
 
         // ORDER 3
-        dailyLog.Add($"- {(int)timer} seconds: Order 3 requested");
-        computerScript.updateLog();
-        requestedByTimes[2] = 110 + (15 * difficulty) + (int)timer;
-        Day4Text();
         OrderTags[2].SetActive(true);
-        Orders[2, 2] = 1;
-        Orders[2, 4] = 1;
-        OrdersCombined[2] += 1;
-        OrdersCombined[4] += 1;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 3)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 2;
+            dailyLog.Add($"- {(int)timer} seconds: Order 3 requested");
+            computerScript.updateLog();
+            requestedByTimes[2] = 110 + (15 * difficulty) + (int)timer;
+            Day4Text();
+            Orders[2, 2] = 1;
+            Orders[2, 4] = 1;
+            OrdersCombined[2] += 1;
+            OrdersCombined[4] += 1;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(110 + (15 * difficulty), 2, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            StartCoroutine(OrderTimer(110 + (15 * difficulty), 2, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
 
 
-        yield return new WaitForSeconds(102f + (15 * difficulty));
+            yield return new WaitForSeconds(102f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 112f + (15f * difficulty);
+            OrdersComplete[2] = true;
+
+            if (ordersFailed[2])
+            {
+                OrderX[2].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(2, true);
+            }
+        }
 
 
 
         // ORDER 4
-        dailyLog.Add($"- {(int)timer} seconds: Order 4 requested");
-        computerScript.updateLog();
-        requestedByTimes[3] = 130 + (15 * difficulty) + (int)timer;
-        Day4Text();
         OrderTags[3].SetActive(true);
-        Orders[3, 1] = 1;
-        Orders[3, 2] = 2;
-        Orders[3, 7] = 1;
-        OrdersCombined[1] += 1;
-        OrdersCombined[2] += 2;
-        OrdersCombined[7] += 1;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 4)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 3;
+            dailyLog.Add($"- {(int)timer} seconds: Order 4 requested");
+            computerScript.updateLog();
+            requestedByTimes[3] = 130 + (15 * difficulty) + (int)timer;
+            Day4Text();
+            Orders[3, 1] = 1;
+            Orders[3, 2] = 2;
+            Orders[3, 7] = 1;
+            OrdersCombined[1] += 1;
+            OrdersCombined[2] += 2;
+            OrdersCombined[7] += 1;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(130 + (15 * difficulty), 3, 0, 1, 2, 0, 0, 0, 0, 1, 0, 0, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            StartCoroutine(OrderTimer(130 + (15 * difficulty), 3, 0, 1, 2, 0, 0, 0, 0, 1, 0, 0, 0));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
 
 
-        yield return new WaitForSeconds(122f + (15 * difficulty));
+            yield return new WaitForSeconds(122f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 132f + (15f * difficulty);
+            OrdersComplete[3] = true;
+
+            if (ordersFailed[3])
+            {
+                OrderX[3].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(3, true);
+            }
+        }
 
 
 
         // ORDER 5
-        dailyLog.Add($"- {(int)timer} seconds: Order 5 requested");
-        computerScript.updateLog();
-        requestedByTimes[4] = 135 + (15 * difficulty) + (int)timer;
-        Day4Text();
         OrderTags[4].SetActive(true);
-        Orders[4, 0] = 3;
-        Orders[4, 4] = 1;
-        Orders[4, 9] = 1;
-        OrdersCombined[0] += 3;
-        OrdersCombined[4] += 1;
-        OrdersCombined[9] += 1;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 5)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 4;
+            dailyLog.Add($"- {(int)timer} seconds: Order 5 requested");
+            computerScript.updateLog();
+            requestedByTimes[4] = 135 + (15 * difficulty) + (int)timer;
+            Day4Text();
+            Orders[4, 0] = 3;
+            Orders[4, 4] = 1;
+            Orders[4, 9] = 1;
+            OrdersCombined[0] += 3;
+            OrdersCombined[4] += 1;
+            OrdersCombined[9] += 1;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(135 + (15 * difficulty), 4, 3, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            StartCoroutine(OrderTimer(135 + (15 * difficulty), 4, 3, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
 
 
-        yield return new WaitForSeconds(124f + (15 * difficulty));
+            yield return new WaitForSeconds(124f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 137f + (15f * difficulty);
+            OrdersComplete[4] = true;
+
+            if (ordersFailed[4])
+            {
+                OrderX[4].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(4, true);
+            }
+        }
 
 
 
         // ORDER 6
-        dailyLog.Add($"- {(int)timer} seconds: Order 6 requested");
-        computerScript.updateLog();
-        requestedByTimes[5] = 135 + (15 * difficulty) + (int)timer;
-        Day4Text();
         OrderTags[5].SetActive(true);
-        Orders[5, 1] = 2;
-        Orders[5, 5] = 1;
-        Orders[5, 6] = 2;
-        OrdersCombined[1] += 2;
-        OrdersCombined[5] += 1;
-        OrdersCombined[6] += 2;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 6)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 5;
+            dailyLog.Add($"- {(int)timer} seconds: Order 6 requested");
+            computerScript.updateLog();
+            requestedByTimes[5] = 135 + (15 * difficulty) + (int)timer;
+            Day4Text();
+            Orders[5, 1] = 2;
+            Orders[5, 5] = 1;
+            Orders[5, 6] = 2;
+            OrdersCombined[1] += 2;
+            OrdersCombined[5] += 1;
+            OrdersCombined[6] += 2;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(135 + (15 * difficulty), 5, 0, 2, 0, 1, 0, 1, 2, 0, 0, 0, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            StartCoroutine(OrderTimer(135 + (15 * difficulty), 5, 0, 2, 0, 1, 0, 1, 2, 0, 0, 0, 0));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
 
 
-        yield return new WaitForSeconds(118f + (15 * difficulty));
+            yield return new WaitForSeconds(118f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 137f + (15f * difficulty);
+            OrdersComplete[5] = true;
+
+            if (ordersFailed[5])
+            {
+                OrderX[5].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(5, true);
+            }
+        }
 
 
 
@@ -2095,67 +2654,115 @@ public class EventHandler : MonoBehaviour
 
 
         // ORDER 8
-        dailyLog.Add($"- {(int)timer} seconds: Order 7 requested");
-        computerScript.updateLog();
-        requestedByTimes[6] = 85 + (15 * difficulty) + (int)timer;
-        Day4Text();
         OrderTags[6].SetActive(true);
-        Orders[6, 0] = 4;
-        Orders[6, 1] = 3;
-        OrdersCombined[0] += 4;
-        OrdersCombined[1] += 3;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 7)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 6;
+            dailyLog.Add($"- {(int)timer} seconds: Order 7 requested");
+            computerScript.updateLog();
+            requestedByTimes[6] = 85 + (15 * difficulty) + (int)timer;
+            Day4Text();
+            Orders[6, 0] = 4;
+            Orders[6, 1] = 3;
+            OrdersCombined[0] += 4;
+            OrdersCombined[1] += 3;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(85 + (15 * difficulty), 6, 4, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            StartCoroutine(OrderTimer(85 + (15 * difficulty), 6, 4, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
 
 
-        yield return new WaitForSeconds(71f + (15 * difficulty));
+            yield return new WaitForSeconds(71f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 87f + (15f * difficulty);
+            OrdersComplete[6] = true;
+
+            if (ordersFailed[6])
+            {
+                OrderX[6].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(6, true);
+            }
+        }
 
 
 
         // ORDER 9
-        dailyLog.Add($"- {(int)timer} seconds: Order 8 requested");
-        computerScript.updateLog();
-        requestedByTimes[7] = 150 + (15 * difficulty) + (int)timer;
-        Day4Text();
         OrderTags[7].SetActive(true);
-        Orders[7, 6] = 2;
-        Orders[7, 7] = 2;
-        Orders[7, 9] = 1;
-        OrdersCombined[6] += 2;
-        OrdersCombined[7] += 2;
-        OrdersCombined[9] += 1;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 8)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 7;
+            dailyLog.Add($"- {(int)timer} seconds: Order 8 requested");
+            computerScript.updateLog();
+            requestedByTimes[7] = 150 + (15 * difficulty) + (int)timer;
+            Day4Text();
+            Orders[7, 6] = 2;
+            Orders[7, 7] = 2;
+            Orders[7, 9] = 1;
+            OrdersCombined[6] += 2;
+            OrdersCombined[7] += 2;
+            OrdersCombined[9] += 1;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(150 + (15 * difficulty), 7, 0, 0, 0, 0, 0, 0, 2, 2, 0, 1, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            StartCoroutine(OrderTimer(150 + (15 * difficulty), 7, 0, 0, 0, 0, 0, 0, 2, 2, 0, 1, 0));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
 
 
 
-        yield return new WaitForSeconds(142f + (15 * difficulty));
+            yield return new WaitForSeconds(142f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 152f + (15f * difficulty);
+            OrdersComplete[7] = true;
+
+            if (ordersFailed[7])
+            {
+                OrderX[7].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(7, true);
+            }
+        }
 
 
 
@@ -2203,13 +2810,19 @@ public class EventHandler : MonoBehaviour
 
 
         // ORDER 11
+        for (int i = 0; i < 11; i++)
+        {
+            errors[i] += errorsMidOrder[i];
+        }
+        errorsMidOrder = new int[11];
+        curOrder = 8;
+        OrderTags[8].SetActive(true);
         OrdersLeftArrow.SetActive(true);
         OrdersRightArrow.SetActive(true);
         dailyLog.Add($"- {(int)timer} seconds: Order 10 requested");
         computerScript.updateLog();
         requestedByTimes[8] = 45  + (int)timer;
         Day4Text();
-        OrderTags[8].SetActive(true);
         yield return new WaitForSeconds(1f);
 
         Instantiate(Liver, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
@@ -2228,9 +2841,14 @@ public class EventHandler : MonoBehaviour
 
         yield return new WaitForSeconds(34f);
         ordersComplete[8] = true;
-        checkmarkOrder(8);
+        checkmarkOrder(8, true);
         yield return new WaitForSeconds(1f);
 
+        for (int i = 0; i < 11; i++)
+        {
+            errors[i] += errorsMidOrder[i];
+        }
+        errorsMidOrder = new int[11];
         finishDay(3);
     }
 
@@ -2277,144 +2895,279 @@ public class EventHandler : MonoBehaviour
 
         TimeText.gameObject.SetActive(true);
 
-        conveyorAudioSources[0].Play();
-        yield return new WaitForSeconds(conveyorAudioSources[0].clip.length - 0.1f);
+        if (skipTo == 0)
+        {
+            conveyorAudioSources[0].Play();
+            yield return new WaitForSeconds(conveyorAudioSources[0].clip.length - 0.1f);
+        }
         conveyorAudioSources[1].Play();
 
         Day5Text();
 
+        if (skipTo > 0)
+        {
+            GameObject.Find("Player").GetComponent<Interact>().StartCoroutine("LoadFromBench", false);
+            yield return new WaitForSeconds(10f);
+            yield return new WaitForSeconds(7f);
+        }
+
+
+        yield return new WaitForSeconds(2f);
 
         // ORDER 1
-        yield return new WaitForSeconds(2f);
-        dailyLog.Add($"- {(int)timer} seconds: Order 1 requested");
-        computerScript.updateLog();
-        requestedByTimes[0] = 30 + (15 * difficulty) + (int)timer;
-        Day5Text();
         OrderTags[0].SetActive(true);
-        Orders[0, 1] = 2;
-        OrdersCombined[1] += 2;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 1)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 0;
+            yield return new WaitForSeconds(2f);
+            dailyLog.Add($"- {(int)timer} seconds: Order 1 requested");
+            computerScript.updateLog();
+            requestedByTimes[0] = 30 + (15 * difficulty) + (int)timer;
+            Day5Text();
+            Orders[0, 1] = 2;
+            OrdersCombined[1] += 2;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(30 + (15 * difficulty), 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            StartCoroutine(OrderTimer(30 + (15 * difficulty), 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
 
 
-        yield return new WaitForSeconds(22f + (15 * difficulty));
+            yield return new WaitForSeconds(22f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 32f + (15f * difficulty);
+            OrdersComplete[0] = true;
+
+            if (ordersFailed[0])
+            {
+                OrderX[0].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(0, true);
+            }
+        }
 
 
 
         // ORDER 2
-        dailyLog.Add($"- {(int)timer} seconds: Order 2 requested");
-        computerScript.updateLog();
-        requestedByTimes[1] = 40 + (15 * difficulty) + (int)timer;
-        Day5Text();
         OrderTags[1].SetActive(true);
-        Orders[1, 0] = 1;
-        Orders[1, 1] = 1;
-        OrdersCombined[0] += 1;
-        OrdersCombined[1] += 1;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 2)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 1;
+            dailyLog.Add($"- {(int)timer} seconds: Order 2 requested");
+            computerScript.updateLog();
+            requestedByTimes[1] = 40 + (15 * difficulty) + (int)timer;
+            Day5Text();
+            Orders[1, 0] = 1;
+            Orders[1, 1] = 1;
+            OrdersCombined[0] += 1;
+            OrdersCombined[1] += 1;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(40 + (15 * difficulty), 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        spiderInEffect = true;
-        wormInEffect = true;
-        StartCoroutine("SpiderMonster");
-        StartCoroutine("WormMonster");
+            StartCoroutine(OrderTimer(40 + (15 * difficulty), 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            spiderInEffect = true;
+            wormInEffect = true;
+            StartCoroutine("SpiderMonster");
+            StartCoroutine("WormMonster");
 
 
 
-        yield return new WaitForSeconds(35f + (15 * difficulty));
+            yield return new WaitForSeconds(35f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 42f + (15f * difficulty);
+            OrdersComplete[1] = true;
+
+            if (ordersFailed[1])
+            {
+                OrderX[1].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(1, true);
+            }
+
+            StartCoroutine("SpiderMonster");
+            StartCoroutine("WormMonster");
+        }
 
 
 
         // ORDER 3
-        dailyLog.Add($"- {(int)timer} seconds: Order 3 requested");
-        computerScript.updateLog();
-        requestedByTimes[2] = 65 + (15 * difficulty) + (int)timer;
-        Day5Text();
         OrderTags[2].SetActive(true);
-        Orders[2, 10] = 2;
-        OrdersCombined[10] += 2;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 3)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 2;
+            dailyLog.Add($"- {(int)timer} seconds: Order 3 requested");
+            computerScript.updateLog();
+            requestedByTimes[2] = 65 + (15 * difficulty) + (int)timer;
+            Day5Text();
+            Orders[2, 10] = 2;
+            OrdersCombined[10] += 2;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(65 + (15 * difficulty), 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            StartCoroutine(OrderTimer(65 + (15 * difficulty), 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
 
 
-        yield return new WaitForSeconds(63f + (15 * difficulty));
+            yield return new WaitForSeconds(63f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 67f + (15f * difficulty);
+            OrdersComplete[2] = true;
+
+            if (ordersFailed[2])
+            {
+                OrderX[2].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(2, true);
+            }
+        }
 
 
 
         // ORDER 4
-        dailyLog.Add($"- {(int)timer} seconds: Order 4 requested");
-        computerScript.updateLog();
-        requestedByTimes[3] = 110 + (15 * difficulty) + (int)timer;
-        Day5Text();
         OrderTags[3].SetActive(true);
-        Orders[3, 7] = 1;
-        Orders[3, 2] = 2;
-        OrdersCombined[7] += 1;
-        OrdersCombined[2] += 2;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 4)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 3;
+            dailyLog.Add($"- {(int)timer} seconds: Order 4 requested");
+            computerScript.updateLog();
+            requestedByTimes[3] = 110 + (15 * difficulty) + (int)timer;
+            Day5Text();
+            Orders[3, 7] = 1;
+            Orders[3, 2] = 2;
+            OrdersCombined[7] += 1;
+            OrdersCombined[2] += 2;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(110 + (15 * difficulty), 3, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            StartCoroutine(OrderTimer(110 + (15 * difficulty), 3, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
 
 
-        yield return new WaitForSeconds(108f + (15 * difficulty));
+            yield return new WaitForSeconds(108f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 112f + (15f * difficulty);
+            OrdersComplete[3] = true;
+
+            if (ordersFailed[3])
+            {
+                OrderX[3].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(3, true);
+            }
+        }
 
 
 
         // ORDER 5
-        dailyLog.Add($"- {(int)timer} seconds: Order 5 requested");
-        computerScript.updateLog();
-        requestedByTimes[4] = 95 + (15 * difficulty) + (int)timer;
-        Day5Text();
         OrderTags[4].SetActive(true);
-        Orders[4, 3] = 1;
-        Orders[4, 4] = 1;
-        OrdersCombined[3] += 1;
-        OrdersCombined[4] += 1;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 5)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 4;
+            dailyLog.Add($"- {(int)timer} seconds: Order 5 requested");
+            computerScript.updateLog();
+            requestedByTimes[4] = 95 + (15 * difficulty) + (int)timer;
+            Day5Text();
+            Orders[4, 3] = 1;
+            Orders[4, 4] = 1;
+            OrdersCombined[3] += 1;
+            OrdersCombined[4] += 1;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(95 + (15 * difficulty), 4, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f); 
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            StartCoroutine(OrderTimer(95 + (15 * difficulty), 4, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f); 
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
 
 
-        yield return new WaitForSeconds(90f + (15 * difficulty));
+            yield return new WaitForSeconds(90f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 97f + (15f * difficulty);
+            OrdersComplete[4] = true;
+
+            if (ordersFailed[4])
+            {
+                OrderX[4].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(4, true);
+            }
+        }
 
 
 
@@ -2456,165 +3209,285 @@ public class EventHandler : MonoBehaviour
 
 
         // ORDER 7
-        dailyLog.Add($"- {(int)timer} seconds: Order 7 requested");
-        computerScript.updateLog();
-        requestedByTimes[5] = 100 + (15 * difficulty) + (int)timer;
-        Day5Text();
         OrderTags[5].SetActive(true);
-        Orders[5, 0] = 1;
-        Orders[5, 2] = 1;
-        Orders[5, 10] = 3;
-        OrdersCombined[0] += 1;
-        OrdersCombined[2] += 1;
-        OrdersCombined[10] += 3;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 6)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 5;
+            dailyLog.Add($"- {(int)timer} seconds: Order 7 requested");
+            computerScript.updateLog();
+            requestedByTimes[5] = 100 + (15 * difficulty) + (int)timer;
+            Day5Text();
+            Orders[5, 0] = 1;
+            Orders[5, 2] = 1;
+            Orders[5, 10] = 3;
+            OrdersCombined[0] += 1;
+            OrdersCombined[2] += 1;
+            OrdersCombined[10] += 3;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(100 + (15 * difficulty), 5, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 3));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            StartCoroutine(OrderTimer(100 + (15 * difficulty), 5, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 3));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
 
 
-        yield return new WaitForSeconds(92f + (15 * difficulty));
+            yield return new WaitForSeconds(92f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 102f + (15f * difficulty);
+            OrdersComplete[5] = true;
+
+            if (ordersFailed[5])
+            {
+                OrderX[5].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(5, true);
+            }
+        }
 
 
 
         // ORDER 8
-        dailyLog.Add($"- {(int)timer} seconds: Order 8 requested");
-        computerScript.updateLog();
-        requestedByTimes[6] = 85 + (15 * difficulty) + (int)timer;
-        Day5Text();
         OrderTags[6].SetActive(true);
-        Orders[6, 6] = 1;
-        Orders[6, 9] = 1;
-        OrdersCombined[6] += 1;
-        OrdersCombined[9] += 1;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 7)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 6;
+            dailyLog.Add($"- {(int)timer} seconds: Order 8 requested");
+            computerScript.updateLog();
+            requestedByTimes[6] = 85 + (15 * difficulty) + (int)timer;
+            Day5Text();
+            Orders[6, 6] = 1;
+            Orders[6, 9] = 1;
+            OrdersCombined[6] += 1;
+            OrdersCombined[9] += 1;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(85 + (15 * difficulty), 6, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            StartCoroutine(OrderTimer(85 + (15 * difficulty), 6, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
 
 
-        yield return new WaitForSeconds(83f + (15 * difficulty));
+            yield return new WaitForSeconds(83f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 87f + (15f * difficulty);
+            OrdersComplete[6] = true;
+
+            if (ordersFailed[6])
+            {
+                OrderX[6].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(6, true);
+            }
+        }
 
 
 
         // ORDER 9
-        dailyLog.Add($"- {(int)timer} seconds: Order 9 requested");
-        computerScript.updateLog();
-        requestedByTimes[7] = 90 + (15 * difficulty) + (int)timer;
-        Day5Text();
         OrderTags[7].SetActive(true);
-        Orders[7, 10] = 5;
-        OrdersCombined[10] += 5;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 8)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 7;
+            dailyLog.Add($"- {(int)timer} seconds: Order 9 requested");
+            computerScript.updateLog();
+            requestedByTimes[7] = 90 + (15 * difficulty) + (int)timer;
+            Day5Text();
+            Orders[7, 10] = 5;
+            OrdersCombined[10] += 5;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(90 + (15 * difficulty), 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            StartCoroutine(OrderTimer(90 + (15 * difficulty), 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
 
 
-        yield return new WaitForSeconds(82f + (15 * difficulty));
+            yield return new WaitForSeconds(92f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 32f + (15f * difficulty);
+            OrdersComplete[7] = true;
+
+            if (ordersFailed[7])
+            {
+                OrderX[7].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(7, true);
+            }
+        }
 
 
 
         // ORDER 10
         OrdersLeftArrow.SetActive(true);
         OrdersRightArrow.SetActive(true);
-        dailyLog.Add($"- {(int)timer} seconds: Order 10 requested");
-        computerScript.updateLog();
-        requestedByTimes[8] = 140 + (15 * difficulty) + (int)timer;
-        Day5Text();
         OrderTags[8].SetActive(true);
-        Orders[8, 1] = 1;
-        Orders[8, 4] = 1;
-        Orders[8, 7] = 3;
-        Orders[8, 9] = 1;
-        OrdersCombined[1] += 1;
-        OrdersCombined[4] += 1;
-        OrdersCombined[7] += 3;
-        OrdersCombined[9] += 1;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 9)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 8;
+            dailyLog.Add($"- {(int)timer} seconds: Order 10 requested");
+            computerScript.updateLog();
+            requestedByTimes[8] = 140 + (15 * difficulty) + (int)timer;
+            Day5Text();
+            Orders[8, 1] = 1;
+            Orders[8, 4] = 1;
+            Orders[8, 7] = 3;
+            Orders[8, 9] = 1;
+            OrdersCombined[1] += 1;
+            OrdersCombined[4] += 1;
+            OrdersCombined[7] += 3;
+            OrdersCombined[9] += 1;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(140 + (15 * difficulty), 8, 0, 1, 0, 0, 1, 0, 0, 3, 0, 1, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            StartCoroutine(OrderTimer(140 + (15 * difficulty), 8, 0, 1, 0, 0, 1, 0, 0, 3, 0, 1, 0));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
 
 
-        yield return new WaitForSeconds(126f + (15 * difficulty));
+            yield return new WaitForSeconds(126f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 142f + (15f * difficulty);
+            OrdersComplete[8] = true;
+
+            if (ordersFailed[8])
+            {
+                OrderX[8].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(8, true);
+            }
+        }
 
 
 
         // ORDER 11
-        dailyLog.Add($"- {(int)timer} seconds: Order 11 requested");
-        computerScript.updateLog();
-        requestedByTimes[9] = 150 + (15 * difficulty) + (int)timer;
-        Day5Text();
         OrderTags[9].SetActive(true);
-        Orders[9, 0] = 3;
-        Orders[9, 3] = 2;
-        Orders[9, 7] = 1;
-        Orders[9, 9] = 1;
-        Orders[9, 10] = 1;
-        OrdersCombined[0] += 3;
-        OrdersCombined[3] += 2;
-        OrdersCombined[7] += 1;
-        OrdersCombined[9] += 1;
-        OrdersCombined[10] += 1;
-        yield return new WaitForSeconds(1f);
+        if (skipTo < 10)
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                errors[i] += errorsMidOrder[i];
+            }
+            errorsMidOrder = new int[11];
+            curOrder = 9;
+            dailyLog.Add($"- {(int)timer} seconds: Order 11 requested");
+            computerScript.updateLog();
+            requestedByTimes[9] = 150 + (15 * difficulty) + (int)timer;
+            Day5Text();
+            Orders[9, 0] = 3;
+            Orders[9, 3] = 2;
+            Orders[9, 7] = 1;
+            Orders[9, 9] = 1;
+            Orders[9, 10] = 1;
+            OrdersCombined[0] += 3;
+            OrdersCombined[3] += 2;
+            OrdersCombined[7] += 1;
+            OrdersCombined[9] += 1;
+            OrdersCombined[10] += 1;
+            yield return new WaitForSeconds(1f);
 
-        StartCoroutine(OrderTimer(150 + (15 * difficulty), 9, 3, 0, 0, 2, 0, 0, 0, 1, 0, 1, 1));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            StartCoroutine(OrderTimer(150 + (15 * difficulty), 9, 3, 0, 0, 2, 0, 0, 0, 1, 0, 1, 1));
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            Alarm.Play();
+            StartCoroutine(switchRed());
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
 
 
-        yield return new WaitForSeconds(136f + (15 * difficulty));
+            yield return new WaitForSeconds(136f + (15 * difficulty));
+        }
+        else
+        {
+            timer += 155f + (15f * difficulty);
+            OrdersComplete[9] = true;
+
+            if (ordersFailed[9])
+            {
+                OrderX[9].SetActive(true);
+                curOrder++;
+            }
+            else
+            {
+                checkmarkOrder(9, true);
+            }
+        }
 
 
 
@@ -2740,7 +3613,12 @@ public class EventHandler : MonoBehaviour
         Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
         yield return new WaitForSeconds(111f + (15 * difficulty));*/
-         
+
+        for (int i = 0; i < 11; i++)
+        {
+            errors[i] += errorsMidOrder[i];
+        }
+        errorsMidOrder = new int[11];
         finishDay(4);
 
         if (TotalDayErrors >= (5 + (2 * Difficulty))) // failed

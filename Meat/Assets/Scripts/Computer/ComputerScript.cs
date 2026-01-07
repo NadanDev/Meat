@@ -46,6 +46,7 @@ public class ComputerScript : MonoBehaviour
     [SerializeField] GameObject[] SummaryObjects;
     [SerializeField] Animator StartUI;
     [SerializeField] AudioSource GunSound;
+    [SerializeField] AudioSource Splatter;
     [SerializeField] AudioSource Thud;
     [SerializeField] AudioSource Talk;
 
@@ -70,7 +71,17 @@ public class ComputerScript : MonoBehaviour
 
     private void Update()
     {
-        numPiecesInBag.text = EventHandler.i.PiecesInBagger.ToString();
+        int num = EventHandler.i.PiecesInBagger;
+        if (num % 2 != 0)
+        {
+            num = num / 2;
+            numPiecesInBag.text = (num + 0.5f).ToString();
+        }
+        else
+        {
+            num = num / 2;
+            numPiecesInBag.text = num.ToString();
+        }
 
         float scr = Input.mouseScrollDelta.y;
 
@@ -178,7 +189,6 @@ public class ComputerScript : MonoBehaviour
         bool allRead = true;
         for (int i = 0; i < unreads.Length; i++)
         {
-            print(unreads[i].enabled);
             if (unreads[i].enabled && unreads[i].gameObject.transform.parent.gameObject.activeSelf)
             {
                 allRead = false;
@@ -249,6 +259,15 @@ public class ComputerScript : MonoBehaviour
 
     public void ClockOut(bool day5)
     {
+        if (EventHandler.i.TotalDayErrors < (5 + (2 * EventHandler.i.Difficulty)))
+        {
+            PlayerPrefs.SetInt("SkipTo", 0);
+            //PlayerPrefs.SetInt("TotalDayErrors", 0);
+            PlayerPrefs.SetFloat("FailedPercentAvg", 0);
+            PlayerPrefs.SetString("Errors", "");
+            PlayerPrefs.SetString("FailedOrders", "");
+            EventHandler.i.SkipTo = 0;
+        }
         clockOut(false, day5);
     }
 
@@ -256,8 +275,6 @@ public class ComputerScript : MonoBehaviour
     {
         if ((EventHandler.i.DayDone && EventHandler.i.Day != 5) || (starting == false && day5 == true))
         {
-            newMessageNotif.SetActive(true);
-
             Player.GetComponent<Interact>().clickedClockOut = true;
 
             EventHandler.i.NotInDay = true;
@@ -271,6 +288,7 @@ public class ComputerScript : MonoBehaviour
             {
                 failed = false;
                 EventHandler.i.Day++;
+                newMessageNotif.SetActive(true);
             }
             else if (EventHandler.i.Day == 2)
             {
@@ -278,6 +296,7 @@ public class ComputerScript : MonoBehaviour
                 {
                     failed = false;
                     EventHandler.i.Day++;
+                    newMessageNotif.SetActive(true);
                 }
             }
             else if (EventHandler.i.Day == 3)
@@ -286,6 +305,7 @@ public class ComputerScript : MonoBehaviour
                 {
                     failed = false;
                     EventHandler.i.Day++;
+                    newMessageNotif.SetActive(true);
                 }
             }
             else if (EventHandler.i.Day == 4)
@@ -294,6 +314,7 @@ public class ComputerScript : MonoBehaviour
                 {
                     failed = false;
                     EventHandler.i.Day++;
+                    newMessageNotif.SetActive(true);
                 }
             }
             else if (EventHandler.i.Day == 5)
@@ -302,6 +323,7 @@ public class ComputerScript : MonoBehaviour
                 {
                     failed = false;
                     EventHandler.i.Day++;
+                    newMessageNotif.SetActive(true);
                 }
             }
             
@@ -310,10 +332,16 @@ public class ComputerScript : MonoBehaviour
             {
                 BlackScreen.SetActive(true);
                 StartUI.SetBool("FadeOut", true);
+
+                // FADE OUT SOUND
+                EventHandler.i.StartCoroutine("fadeOutAmbience", 0);
             }
             else
             {
                 StartUI.SetBool("FadeOut", true);
+
+                // FADE OUT SOUND
+                EventHandler.i.StartCoroutine("fadeOutAmbience", 0);
             }
             StartCoroutine(WaitForFadeOut(EventHandler.i.Day, failed, starting));
         }
@@ -342,6 +370,7 @@ public class ComputerScript : MonoBehaviour
         if (EventHandler.i.Day >= 2)
         {
             PlayerPrefs.SetInt("Day", 2);
+
             MessageObjects[2].SetActive(true);
             MessageObjects[3].SetActive(true);
             SummaryObjects[1].SetActive(true);
@@ -385,6 +414,8 @@ public class ComputerScript : MonoBehaviour
             CamObject.SetActive(false);
             FireCam.SetActive(true);
 
+            // FADE OUT SOUND (fade in)
+            //EventHandler.i.StartCoroutine("fadeInAmbience", 0);
             StartUI.SetBool("FadeOut", false);
             StartCoroutine(EventHandler.i.StartingUIAnim("NONE", true));
 
@@ -415,7 +446,9 @@ public class ComputerScript : MonoBehaviour
             textBox.enabled = false;
 
             GunSound.Play();
+            //EventHandler.i.StartCoroutine("fadeOutSound", 99);
             yield return new WaitForSeconds(0.1f);
+            Splatter.Play();
             BlackScreen.SetActive(true);
 
             yield return new WaitForSeconds(2.9f);
@@ -482,6 +515,15 @@ public class ComputerScript : MonoBehaviour
             date.text = "SUNDAY";
         }
         Player.GetComponent<Interact>().clickedClockOut = false;
+
+        if (EventHandler.i.SkipTo > 0)
+        {
+            GameObject.FindGameObjectWithTag("Computer").GetComponent<ComputerScript>().startDay();
+        }
+        else
+        {
+            GameObject.Find("Player").GetComponent<Interact>().StartCoroutine("LoadFromBench", true);
+        }
     }
 
     public void changeOrderPage(int dir) // 0 left, 1 right
