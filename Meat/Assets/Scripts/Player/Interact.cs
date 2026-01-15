@@ -103,6 +103,9 @@ public class Interact : MonoBehaviour
     [SerializeField] AudioSource CookerSwitchSound;
     [SerializeField] AudioSource BaggerClogged;
     [SerializeField] AudioSource BaggerUnclog;
+    [SerializeField] AudioSource Breath;
+    [SerializeField] AudioSource StandUpRuffle;
+    [SerializeField] AudioSource SitDownRuffle;
     [SerializeField] GameObject MetalDoorOpenLoc;
     [SerializeField] GameObject MetalDoorCloseLoc;
 
@@ -1261,10 +1264,16 @@ public class Interact : MonoBehaviour
         eyesClosed.transform.parent.gameObject.SetActive(true);
         benchAnim.SetBool("Begin", true);
 
-        yield return new WaitForSeconds(3f);
-        yield return new WaitForSeconds(2.5f);
+        yield return new WaitForSeconds(1.33f);
+        SitDownRuffle.Play();
+        yield return new WaitForSeconds(1.67f);
+        yield return new WaitForSeconds(2.45f);
+        Breath.Play();
+        yield return new WaitForSeconds(0.05f);
         benchAnim.SetBool("Begin", false);
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(3.3f);
+        StandUpRuffle.Play();
+        yield return new WaitForSeconds(1.7f);
 
         canAnimateCam = true;
 
@@ -1342,7 +1351,16 @@ public class Interact : MonoBehaviour
         eyesClosed.transform.parent.gameObject.SetActive(true);
         eyesClosed.color = new Color(0, 0, 0, 255);
 
-        yield return new WaitForSeconds(6f);
+        if (!slow)
+        {
+            yield return new WaitForSeconds(5.95f);
+            Breath.Play();
+            yield return new WaitForSeconds(0.05f);
+        }
+        else
+        {
+            yield return new WaitForSeconds(6f);
+        }
 
         benchAnim.enabled = true;
 
@@ -1354,7 +1372,9 @@ public class Interact : MonoBehaviour
             benchAnim.SetBool("StandUpSlow", true);
             // FADE OUT SOUND (Fade in)
             EventHandler.i.StartCoroutine("fadeInAmbience", 80);
-            yield return new WaitForSeconds(4.75f);
+            yield return new WaitForSeconds(3.3f);
+            StandUpRuffle.Play();
+            yield return new WaitForSeconds(1.45f);
             benchAnim.SetBool("StandUpSlow", false);
         }
         else
@@ -1362,7 +1382,9 @@ public class Interact : MonoBehaviour
             benchAnim.SetBool("StandUp", true);
             // FADE OUT SOUND (cut in)
             EventHandler.i.StartCoroutine("fadeInAmbience", 99);
-            yield return new WaitForSeconds(4.5f);
+            yield return new WaitForSeconds(3.3f);
+            StandUpRuffle.Play();
+            yield return new WaitForSeconds(1.2f);
             benchAnim.SetBool("StandUp", false);
         }
 

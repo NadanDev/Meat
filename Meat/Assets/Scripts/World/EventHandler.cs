@@ -61,6 +61,8 @@ public class EventHandler : MonoBehaviour
     // BEGINNING
     private void Awake()
     {
+        StartCoroutine(PlayRandomSoundRoutine());
+
         difficulty = DifficultyHandler.difficulty;
         skipTo = PlayerPrefs.GetInt("SkipTo", 0);
 
@@ -460,6 +462,10 @@ public class EventHandler : MonoBehaviour
     public AudioSource MonsterCall;
     public AudioSource spiderEat;
     public AudioSource Ambience;
+    public AudioSource Legs;
+    public AudioSource Bang1;
+    public AudioSource Bang2;
+    public AudioSource Bang3;
 
     private bool startTimer = false;
     private bool spiderInEffect = false;
@@ -491,6 +497,26 @@ public class EventHandler : MonoBehaviour
             CookerSwitch.transform.localRotation = Quaternion.Euler(-90f, 0, 0);
             GameObject.Find("Player").GetComponent<Interact>().cookerSwitchFlipped = false;
             FireEffect.SetActive(false);
+        }
+    }
+
+    IEnumerator PlayRandomSoundRoutine()
+    {
+        while (true)
+        {
+            yield return new WaitUntil(() => dayIsGoing);
+
+            float duration = Random.Range(20f, 80f);
+            yield return new WaitForSeconds(duration);
+            if (!dayIsGoing) continue;
+
+            switch (Random.Range(0, 4))
+            {
+                case 0: Legs.Play(); break;
+                case 1: Bang1.Play(); break;
+                case 2: Bang2.Play(); break;
+                case 3: Bang3.Play(); break;
+            }
         }
     }
 
