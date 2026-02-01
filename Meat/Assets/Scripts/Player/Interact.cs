@@ -1280,8 +1280,9 @@ public class Interact : MonoBehaviour
         GetComponent<PlayerMove>().enabled = true;
         GetComponent<CameraRotation>().enabled = true;
 
-        benchCamera.gameObject.SetActive(false);
         playerCamera.gameObject.SetActive(true);
+        yield return new WaitForEndOfFrame();
+        benchCamera.gameObject.SetActive(false);
 
         GameObject.Find("Player").transform.position = new Vector3(benchCamLoc.position.x, 1.47936f, benchCamLoc.position.z);
         playerCamera.transform.position = new Vector3(benchCamLoc.position.x, 1.47936f, benchCamLoc.position.z);
@@ -1391,14 +1392,15 @@ public class Interact : MonoBehaviour
         GetComponent<PlayerMove>().enabled = true;
         GetComponent<CameraRotation>().enabled = true;
 
-        benchCamera.gameObject.SetActive(false);
-        playerCamera.gameObject.SetActive(true);
-
         GameObject.Find("Player").transform.position = new Vector3(benchCamLoc.position.x, 1.47936f, benchCamLoc.position.z);
         playerCamera.transform.position = new Vector3(benchCamLoc.position.x, 1.47936f, benchCamLoc.position.z);
         playerCamera.transform.rotation = Quaternion.Euler(0, -90, 0);
         GameObject.Find("Player").GetComponent<CameraRotation>().yRot = -90f;
         GameObject.Find("Player").GetComponent<CameraRotation>().xRot = 0;
+
+        playerCamera.gameObject.SetActive(true);
+        yield return new WaitForEndOfFrame();
+        benchCamera.gameObject.SetActive(false);
 
         benchAnim.enabled = false;
 

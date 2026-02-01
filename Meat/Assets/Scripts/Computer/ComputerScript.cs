@@ -59,8 +59,8 @@ public class ComputerScript : MonoBehaviour
 
     private string[] lines = {
         "I have no need for useless employees",
-        "I thought I told you to make no errors",
-        "No wonder you couldn't find a job anywhere else"
+        "What happened to not making any errors?",
+        "No wonder you couldn't find a job elsewhere"
     };
     private string lastLine = "Oh well, I'll find someone new";
 

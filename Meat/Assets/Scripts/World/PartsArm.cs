@@ -12,7 +12,7 @@ public class PartsArm : MonoBehaviour
     {
         if (other.CompareTag("Belt"))
         {
-            rb.AddForce(other.transform.up * -0.19f, ForceMode.Force);
+            rb.AddForce(other.transform.up * -0.18f, ForceMode.Force);
         }
     }
 

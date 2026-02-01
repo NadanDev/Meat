@@ -506,7 +506,7 @@ public class EventHandler : MonoBehaviour
         {
             yield return new WaitUntil(() => dayIsGoing);
 
-            float duration = Random.Range(20f, 80f);
+            float duration = Random.Range(30f, 100f);
             yield return new WaitForSeconds(duration);
             if (!dayIsGoing) continue;
 
@@ -687,6 +687,10 @@ public class EventHandler : MonoBehaviour
         }
         while (Ambience.volume > 0)
         {
+            if (conveyorAudioSources[1].volume > 0)
+            {
+                conveyorAudioSources[1].volume -= 0.01f;
+            }
             Ambience.volume -= 0.01f;
             yield return new WaitForSeconds(0.02f - 0.0002f * multiplier);
         }
@@ -700,6 +704,10 @@ public class EventHandler : MonoBehaviour
         }
         while (Ambience.volume < 1)
         {
+            if (conveyorAudioSources[1].volume < 0.4)
+            {
+                conveyorAudioSources[1].volume += 0.01f;
+            }
             Ambience.volume += 0.01f;
             yield return new WaitForSeconds(0.02f - 0.0002f * multiplier);
         }
@@ -1814,6 +1822,13 @@ public class EventHandler : MonoBehaviour
 
         failedPercentAvg = 0;
 
+        if (skipTo > 0)
+        {
+            failedPercentAvg = PlayerPrefs.GetFloat("FailedPercentAvg", 0);
+            GameObject.Find("Player").GetComponent<Interact>().StartCoroutine("LoadFromBench", false);
+            yield return new WaitForSeconds(6f);
+        }
+
         runnerInEffect = true;
         StartCoroutine("RandomizeRunner");
 
@@ -1828,15 +1843,6 @@ public class EventHandler : MonoBehaviour
 
         Day3Text();
 
-        if (skipTo > 0)
-        {
-            GameObject.Find("Player").GetComponent<Interact>().StartCoroutine("LoadFromBench", false);
-            yield return new WaitForSeconds(10f);
-            yield return new WaitForSeconds(7f);
-        }
-
-
-        yield return new WaitForSeconds(2f);
 
         // ORDER 1
         OrderTags[0].SetActive(true);
@@ -1939,6 +1945,12 @@ public class EventHandler : MonoBehaviour
                 checkmarkOrder(1, true);
             }
 
+            if (skipTo == 1)
+            {
+                yield return new WaitForSeconds(7f);
+            }
+
+            spiderInEffect = true;
             StartCoroutine("SpiderMonster");
         }
 
@@ -1994,6 +2006,11 @@ public class EventHandler : MonoBehaviour
             else
             {
                 checkmarkOrder(2, true);
+            }
+
+            if (skipTo == 2)
+            {
+                yield return new WaitForSeconds(7f);
             }
         }
 
@@ -2054,6 +2071,11 @@ public class EventHandler : MonoBehaviour
             {
                 checkmarkOrder(3, true);
             }
+
+            if (skipTo == 3)
+            {
+                yield return new WaitForSeconds(7f);
+            }
         }
 
 
@@ -2113,6 +2135,11 @@ public class EventHandler : MonoBehaviour
             {
                 checkmarkOrder(4, true);
             }
+
+            if (skipTo == 4)
+            {
+                yield return new WaitForSeconds(7f);
+            }
         }
 
 
@@ -2167,6 +2194,11 @@ public class EventHandler : MonoBehaviour
             else
             {
                 checkmarkOrder(5, true);
+            }
+
+            if (skipTo == 5)
+            {
+                yield return new WaitForSeconds(7f);
             }
         }
 
@@ -2279,6 +2311,13 @@ public class EventHandler : MonoBehaviour
 
         failedPercentAvg = 0;
 
+        if (skipTo > 0)
+        {
+            failedPercentAvg = PlayerPrefs.GetFloat("FailedPercentAvg", 0);
+            GameObject.Find("Player").GetComponent<Interact>().StartCoroutine("LoadFromBench", false);
+            yield return new WaitForSeconds(6f);
+        }
+
         runnerInEffect = true;
         StartCoroutine("RandomizeRunner");
 
@@ -2293,15 +2332,6 @@ public class EventHandler : MonoBehaviour
 
         Day4Text();
 
-        if (skipTo > 0)
-        {
-            GameObject.Find("Player").GetComponent<Interact>().StartCoroutine("LoadFromBench", false);
-            yield return new WaitForSeconds(10f);
-            yield return new WaitForSeconds(7f);
-        }
-
-
-        yield return new WaitForSeconds(2f);
 
         // ORDER 1
         OrderTags[0].SetActive(true);
@@ -2413,6 +2443,13 @@ public class EventHandler : MonoBehaviour
                 checkmarkOrder(1, true);
             }
 
+            if (skipTo == 1)
+            {
+                yield return new WaitForSeconds(7f);
+            }
+
+            spiderInEffect = true;
+            wormInEffect = true;
             StartCoroutine("SpiderMonster");
             StartCoroutine("WormMonster");
         }
@@ -2468,6 +2505,11 @@ public class EventHandler : MonoBehaviour
             {
                 checkmarkOrder(2, true);
             }
+
+            if (skipTo == 2)
+            {
+                yield return new WaitForSeconds(7f);
+            }
         }
 
 
@@ -2522,6 +2564,11 @@ public class EventHandler : MonoBehaviour
             else
             {
                 checkmarkOrder(3, true);
+            }
+
+            if (skipTo == 3)
+            {
+                yield return new WaitForSeconds(7f);
             }
         }
 
@@ -2579,6 +2626,11 @@ public class EventHandler : MonoBehaviour
             else
             {
                 checkmarkOrder(4, true);
+            }
+
+            if (skipTo == 4)
+            {
+                yield return new WaitForSeconds(7f);
             }
         }
 
@@ -2640,6 +2692,11 @@ public class EventHandler : MonoBehaviour
             else
             {
                 checkmarkOrder(5, true);
+            }
+
+            if (skipTo == 5)
+            {
+                yield return new WaitForSeconds(7f);
             }
         }
 
@@ -2732,6 +2789,11 @@ public class EventHandler : MonoBehaviour
             {
                 checkmarkOrder(6, true);
             }
+
+            if (skipTo == 6)
+            {
+                yield return new WaitForSeconds(7f);
+            }
         }
 
 
@@ -2787,6 +2849,11 @@ public class EventHandler : MonoBehaviour
             else
             {
                 checkmarkOrder(7, true);
+            }
+
+            if (skipTo == 7)
+            {
+                yield return new WaitForSeconds(7f);
             }
         }
 
@@ -2916,6 +2983,13 @@ public class EventHandler : MonoBehaviour
 
         failedPercentAvg = 0;
 
+        if (skipTo > 0)
+        {
+            failedPercentAvg = PlayerPrefs.GetFloat("FailedPercentAvg", 0);
+            GameObject.Find("Player").GetComponent<Interact>().StartCoroutine("LoadFromBench", false);
+            yield return new WaitForSeconds(6f);
+        }
+
         runnerInEffect = true;
         StartCoroutine("RandomizeRunner");
 
@@ -2930,15 +3004,6 @@ public class EventHandler : MonoBehaviour
 
         Day5Text();
 
-        if (skipTo > 0)
-        {
-            GameObject.Find("Player").GetComponent<Interact>().StartCoroutine("LoadFromBench", false);
-            yield return new WaitForSeconds(10f);
-            yield return new WaitForSeconds(7f);
-        }
-
-
-        yield return new WaitForSeconds(2f);
 
         // ORDER 1
         OrderTags[0].SetActive(true);
@@ -3044,6 +3109,13 @@ public class EventHandler : MonoBehaviour
                 checkmarkOrder(1, true);
             }
 
+            if (skipTo == 1)
+            {
+                yield return new WaitForSeconds(7f);
+            }
+
+            spiderInEffect = true;
+            wormInEffect = true;
             StartCoroutine("SpiderMonster");
             StartCoroutine("WormMonster");
         }
@@ -3093,6 +3165,11 @@ public class EventHandler : MonoBehaviour
             {
                 checkmarkOrder(2, true);
             }
+
+            if (skipTo == 2)
+            {
+                yield return new WaitForSeconds(7f);
+            }
         }
 
 
@@ -3141,6 +3218,11 @@ public class EventHandler : MonoBehaviour
             else
             {
                 checkmarkOrder(3, true);
+            }
+
+            if (skipTo == 3)
+            {
+                yield return new WaitForSeconds(7f);
             }
         }
 
@@ -3192,6 +3274,11 @@ public class EventHandler : MonoBehaviour
             else
             {
                 checkmarkOrder(4, true);
+            }
+
+            if (skipTo == 4)
+            {
+                yield return new WaitForSeconds(7f);
             }
         }
 
@@ -3285,6 +3372,11 @@ public class EventHandler : MonoBehaviour
             {
                 checkmarkOrder(5, true);
             }
+
+            if (skipTo == 5)
+            {
+                yield return new WaitForSeconds(7f);
+            }
         }
 
 
@@ -3333,6 +3425,11 @@ public class EventHandler : MonoBehaviour
             else
             {
                 checkmarkOrder(6, true);
+            }
+
+            if (skipTo == 6)
+            {
+                yield return new WaitForSeconds(7f);
             }
         }
 
@@ -3384,6 +3481,11 @@ public class EventHandler : MonoBehaviour
             else
             {
                 checkmarkOrder(7, true);
+            }
+
+            if (skipTo == 7)
+            {
+                yield return new WaitForSeconds(7f);
             }
         }
 
@@ -3447,6 +3549,11 @@ public class EventHandler : MonoBehaviour
             else
             {
                 checkmarkOrder(8, true);
+            }
+
+            if (skipTo == 8)
+            {
+                yield return new WaitForSeconds(7f);
             }
         }
 
@@ -3512,6 +3619,11 @@ public class EventHandler : MonoBehaviour
             else
             {
                 checkmarkOrder(9, true);
+            }
+
+            if (skipTo == 9)
+            {
+                yield return new WaitForSeconds(7f);
             }
         }
 

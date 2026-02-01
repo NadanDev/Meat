@@ -200,4 +200,9 @@ public class MainMenu : MonoBehaviour
         pressedEnter = true;
         DifficultyHandler.cont = true;
     }
+
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
 }

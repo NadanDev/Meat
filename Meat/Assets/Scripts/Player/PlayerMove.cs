@@ -183,7 +183,7 @@ public class PlayerMove : MonoBehaviour
     {
         if (Mathf.Abs(horizontalMove) > 0 || Mathf.Abs(verticalMove) > 0)
         {
-            bobAmt += ((Mathf.Abs(horizontalMove) + Mathf.Abs(verticalMove)) / (Mathf.Abs(horizontalMove) + Mathf.Abs(verticalMove))) * (Input.GetKey(runKey) ? headBobSpeed * 1.45f : headBobSpeed);
+            bobAmt += ((Mathf.Abs(horizontalMove) + Mathf.Abs(verticalMove)) / (Mathf.Abs(horizontalMove) + Mathf.Abs(verticalMove))) * (Input.GetKey(runKey) ? headBobSpeed * 1.45f : headBobSpeed) * Time.deltaTime;
         }
         else
         {
