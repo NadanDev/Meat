@@ -110240,7 +110240,7 @@ SkinnedMeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8732374672356664774}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -126595,7 +126595,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 5f7da3e2b71678b408ae07977d0c70a6, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.5
+  m_Volume: 0.3
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -126604,7 +126604,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 35
+  MaxDistance: 25
   Pan2D: 0
   rolloffMode: 2
   BypassEffects: 0
@@ -126692,7 +126692,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 58f3dd9720f177f488e966fadce9f648, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.5
+  m_Volume: 0.3
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -126701,7 +126701,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 35
+  MaxDistance: 25
   Pan2D: 0
   rolloffMode: 2
   BypassEffects: 0
@@ -137772,8 +137772,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.10916119, y: 0.0022724033, z: 0.048489626}
-  m_Center: {x: -0.00071916584, y: -0.0010870437, z: 0.19616592}
+  m_Size: {x: 0.15125391, y: 0.0022724033, z: 0.06348785}
+  m_Center: {x: -0.00030193926, y: -0.0010870437, z: 0.19569105}
 --- !u!82 &2990207516140521384
 AudioSource:
   m_ObjectHideFlags: 0
@@ -171650,8 +171650,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.10917725, y: 1.7625098, z: 0.3333862}
-  m_Center: {x: -0.00000047683716, y: 0.8812548, z: -0.000000008207324}
+  m_Size: {x: 0.31381854, y: 1.7625098, z: 0.57617575}
+  m_Center: {x: -0.10232329, y: 0.8812547, z: -0.00016598415}
 --- !u!33 &7781366891491800602
 MeshFilter:
   m_ObjectHideFlags: 0

@@ -1145,8 +1145,13 @@ public class EventHandler : MonoBehaviour
         }
     }
 
-    IEnumerator SpiderMonster()
+    IEnumerator SpiderMonster(bool initialWait = false)
     {
+        if (initialWait)
+        {
+            yield return new WaitForSeconds(45f);
+        }
+
         while (spiderInEffect)
         {
             yield return new WaitForSeconds(10 + (2.5f * difficulty));
@@ -1924,7 +1929,7 @@ public class EventHandler : MonoBehaviour
             yield return new WaitForSeconds(3f);
             Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
             spiderInEffect = true;
-            StartCoroutine("SpiderMonster");
+            StartCoroutine("SpiderMonster", false);
 
 
 
@@ -1951,7 +1956,7 @@ public class EventHandler : MonoBehaviour
             }
 
             spiderInEffect = true;
-            StartCoroutine("SpiderMonster");
+            StartCoroutine("SpiderMonster", true);
         }
 
 
@@ -2421,7 +2426,7 @@ public class EventHandler : MonoBehaviour
             Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
             spiderInEffect = true;
             wormInEffect = true;
-            StartCoroutine("SpiderMonster");
+            StartCoroutine("SpiderMonster", false);
             StartCoroutine("WormMonster");
 
 
@@ -2450,7 +2455,7 @@ public class EventHandler : MonoBehaviour
 
             spiderInEffect = true;
             wormInEffect = true;
-            StartCoroutine("SpiderMonster");
+            StartCoroutine("SpiderMonster", true);
             StartCoroutine("WormMonster");
         }
 
@@ -3087,7 +3092,7 @@ public class EventHandler : MonoBehaviour
             Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
             spiderInEffect = true;
             wormInEffect = true;
-            StartCoroutine("SpiderMonster");
+            StartCoroutine("SpiderMonster", false);
             StartCoroutine("WormMonster");
 
 
@@ -3116,7 +3121,7 @@ public class EventHandler : MonoBehaviour
 
             spiderInEffect = true;
             wormInEffect = true;
-            StartCoroutine("SpiderMonster");
+            StartCoroutine("SpiderMonster", true);
             StartCoroutine("WormMonster");
         }
 
@@ -3331,9 +3336,9 @@ public class EventHandler : MonoBehaviour
             }
             errorsMidOrder = new int[11];
             curOrder = 5;
-            dailyLog.Add($"- {(int)timer} seconds: Order 7 requested");
+            dailyLog.Add($"- {(int)timer} seconds: Order 6 requested");
             computerScript.updateLog();
-            requestedByTimes[5] = 100 + (15 * difficulty) + (int)timer;
+            requestedByTimes[5] = 110 + (15 * difficulty) + (int)timer;
             Day5Text();
             Orders[5, 0] = 1;
             Orders[5, 2] = 1;
@@ -3343,7 +3348,7 @@ public class EventHandler : MonoBehaviour
             OrdersCombined[10] += 3;
             yield return new WaitForSeconds(1f);
 
-            StartCoroutine(OrderTimer(100 + (15 * difficulty), 5, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 3));
+            StartCoroutine(OrderTimer(110 + (15 * difficulty), 5, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 3));
             Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
             Alarm.Play();
             StartCoroutine(switchRed());
@@ -3356,11 +3361,11 @@ public class EventHandler : MonoBehaviour
 
 
 
-            yield return new WaitForSeconds(92f + (15 * difficulty));
+            yield return new WaitForSeconds(102f + (15 * difficulty));
         }
         else
         {
-            timer += 102f + (15f * difficulty);
+            timer += 112f + (15f * difficulty);
             OrdersComplete[5] = true;
 
             if (ordersFailed[5])
@@ -3391,9 +3396,9 @@ public class EventHandler : MonoBehaviour
             }
             errorsMidOrder = new int[11];
             curOrder = 6;
-            dailyLog.Add($"- {(int)timer} seconds: Order 8 requested");
+            dailyLog.Add($"- {(int)timer} seconds: Order 7 requested");
             computerScript.updateLog();
-            requestedByTimes[6] = 85 + (15 * difficulty) + (int)timer;
+            requestedByTimes[6] = 90 + (15 * difficulty) + (int)timer;
             Day5Text();
             Orders[6, 6] = 1;
             Orders[6, 9] = 1;
@@ -3401,20 +3406,22 @@ public class EventHandler : MonoBehaviour
             OrdersCombined[9] += 1;
             yield return new WaitForSeconds(1f);
 
-            StartCoroutine(OrderTimer(85 + (15 * difficulty), 6, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0));
+            StartCoroutine(OrderTimer(90 + (15 * difficulty), 6, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0));
             Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
             Alarm.Play();
             StartCoroutine(switchRed());
             yield return new WaitForSeconds(3f);
             Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
+            yield return new WaitForSeconds(3f);
+            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
 
 
-            yield return new WaitForSeconds(83f + (15 * difficulty));
+            yield return new WaitForSeconds(85f + (15 * difficulty));
         }
         else
         {
-            timer += 87f + (15f * difficulty);
+            timer += 92f + (15f * difficulty);
             OrdersComplete[6] = true;
 
             if (ordersFailed[6])
@@ -3445,7 +3452,7 @@ public class EventHandler : MonoBehaviour
             }
             errorsMidOrder = new int[11];
             curOrder = 7;
-            dailyLog.Add($"- {(int)timer} seconds: Order 9 requested");
+            dailyLog.Add($"- {(int)timer} seconds: Order 8 requested");
             computerScript.updateLog();
             requestedByTimes[7] = 90 + (15 * difficulty) + (int)timer;
             Day5Text();
@@ -3466,7 +3473,7 @@ public class EventHandler : MonoBehaviour
 
 
 
-            yield return new WaitForSeconds(92f + (15 * difficulty));
+            yield return new WaitForSeconds(82f + (15 * difficulty));
         }
         else
         {
@@ -3503,9 +3510,9 @@ public class EventHandler : MonoBehaviour
             }
             errorsMidOrder = new int[11];
             curOrder = 8;
-            dailyLog.Add($"- {(int)timer} seconds: Order 10 requested");
+            dailyLog.Add($"- {(int)timer} seconds: Order 9 requested");
             computerScript.updateLog();
-            requestedByTimes[8] = 140 + (15 * difficulty) + (int)timer;
+            requestedByTimes[8] = 150 + (15 * difficulty) + (int)timer;
             Day5Text();
             Orders[8, 1] = 1;
             Orders[8, 4] = 1;
@@ -3517,7 +3524,7 @@ public class EventHandler : MonoBehaviour
             OrdersCombined[9] += 1;
             yield return new WaitForSeconds(1f);
 
-            StartCoroutine(OrderTimer(140 + (15 * difficulty), 8, 0, 1, 0, 0, 1, 0, 0, 3, 0, 1, 0));
+            StartCoroutine(OrderTimer(150 + (15 * difficulty), 8, 0, 1, 0, 0, 1, 0, 0, 3, 0, 1, 0));
             Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
             Alarm.Play();
             StartCoroutine(switchRed());
@@ -3534,11 +3541,11 @@ public class EventHandler : MonoBehaviour
 
 
 
-            yield return new WaitForSeconds(126f + (15 * difficulty));
+            yield return new WaitForSeconds(136f + (15 * difficulty));
         }
         else
         {
-            timer += 142f + (15f * difficulty);
+            timer += 152f + (15f * difficulty);
             OrdersComplete[8] = true;
 
             if (ordersFailed[8])
@@ -3569,9 +3576,9 @@ public class EventHandler : MonoBehaviour
             }
             errorsMidOrder = new int[11];
             curOrder = 9;
-            dailyLog.Add($"- {(int)timer} seconds: Order 11 requested");
+            dailyLog.Add($"- {(int)timer} seconds: Order 10 requested");
             computerScript.updateLog();
-            requestedByTimes[9] = 150 + (15 * difficulty) + (int)timer;
+            requestedByTimes[9] = 160 + (15 * difficulty) + (int)timer;
             Day5Text();
             Orders[9, 0] = 3;
             Orders[9, 3] = 2;
@@ -3585,7 +3592,7 @@ public class EventHandler : MonoBehaviour
             OrdersCombined[10] += 1;
             yield return new WaitForSeconds(1f);
 
-            StartCoroutine(OrderTimer(150 + (15 * difficulty), 9, 3, 0, 0, 2, 0, 0, 0, 1, 0, 1, 1));
+            StartCoroutine(OrderTimer(160 + (15 * difficulty), 9, 3, 0, 0, 2, 0, 0, 0, 1, 0, 1, 1));
             Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
             Alarm.Play();
             StartCoroutine(switchRed());
@@ -3604,11 +3611,11 @@ public class EventHandler : MonoBehaviour
 
 
 
-            yield return new WaitForSeconds(136f + (15 * difficulty));
+            yield return new WaitForSeconds(146f + (15 * difficulty));
         }
         else
         {
-            timer += 155f + (15f * difficulty);
+            timer += 165f + (15f * difficulty);
             OrdersComplete[9] = true;
 
             if (ordersFailed[9])

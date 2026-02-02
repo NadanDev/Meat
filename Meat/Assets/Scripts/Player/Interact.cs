@@ -554,7 +554,7 @@ public class Interact : MonoBehaviour
                     {
                         int random = Random.Range(0, 6);
 
-                        if (!hasPressedButtonOnce)
+                        if (!hasPressedButtonOnce && EventHandler.i.Day == 1)
                         {
                             hasPressedButtonOnce = true;
                             random = 5;
