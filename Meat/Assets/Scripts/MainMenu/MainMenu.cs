@@ -120,9 +120,16 @@ public class MainMenu : MonoBehaviour
 
             if (PlayerPrefs.GetInt("SkipTo", 0) > 0)
             {
-                QuerryResetSkipTo.SetActive(true);
-                yield return new WaitUntil(() => chosenResetSkipTo);
-                QuerryResetSkipTo.SetActive(false);
+                if (newGameSelected)
+                {
+                    ResetSkipTo(true);
+                }
+                else
+                {
+                    QuerryResetSkipTo.SetActive(true);
+                    yield return new WaitUntil(() => chosenResetSkipTo);
+                    QuerryResetSkipTo.SetActive(false);
+                }
             }
 
             yield return new WaitForSeconds(1f);
