@@ -62,6 +62,7 @@ public class Interact : MonoBehaviour
     [Header("Other References")]
     [SerializeField] LayerMask hitMask;
     [SerializeField] LayerMask enemyHitMask;
+    [SerializeField] LayerMask wallHitMask;
     [SerializeField] ParticleSystem ElectricityEffectBurst;
     [SerializeField] GameObject ElectricityEffect;
     [SerializeField] GameObject FireEffect;
@@ -78,6 +79,7 @@ public class Interact : MonoBehaviour
 
     [Header("Interact Properties")]
     [SerializeField] float interactDistance = 5f;
+    [SerializeField] float blockThrowDist = 1f;
 
     [Header("Sounds")]
     [SerializeField] AudioSource MeatSound1;
@@ -111,7 +113,6 @@ public class Interact : MonoBehaviour
 
     [Header("Keybinds")]
     [SerializeField] KeyCode interact = KeyCode.E;
-    [SerializeField] KeyCode swtichItem = KeyCode.Q;
     [SerializeField] KeyCode Pause = KeyCode.Escape;
 
     Animator doorAnim;
@@ -893,6 +894,11 @@ public class Interact : MonoBehaviour
 
     public void ThrowFunc()
     {
+        if (Physics.Raycast(playerCamera.position, playerCamera.forward, out RaycastHit hit, blockThrowDist, wallHitMask))
+        {
+            return;
+        }
+
         if (holdingMeat)
         {
             if (holdingWood)

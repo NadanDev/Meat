@@ -20,6 +20,7 @@ GameObject:
   - component: {fileID: 640231883768654140}
   - component: {fileID: 3612998282544834027}
   - component: {fileID: 241293618798722376}
+  - component: {fileID: -7167237288029577260}
   m_Layer: 10
   m_Name: GarbageBag
   m_TagString: Bag
@@ -211,7 +212,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 24300002, guid: 0d261692b20914349853ef14c297ae4f, type: 2}
-  m_audioClip: {fileID: 8300000, guid: 44cf73591b617c84c8520316c675b873, type: 3}
+  m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 44cf73591b617c84c8520316c675b873, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
@@ -308,7 +309,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 24300002, guid: 0d261692b20914349853ef14c297ae4f, type: 2}
-  m_audioClip: {fileID: 8300000, guid: 4e6a6dc388789c343a4c85464a346714, type: 3}
+  m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 4e6a6dc388789c343a4c85464a346714, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
@@ -405,7 +406,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 24300002, guid: 0d261692b20914349853ef14c297ae4f, type: 2}
-  m_audioClip: {fileID: 8300000, guid: ff9dcd32ac06ee84ba0f67c66bb312d2, type: 3}
+  m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: ff9dcd32ac06ee84ba0f67c66bb312d2, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
@@ -515,3 +516,15 @@ CapsuleCollider:
   m_Height: 0.0059162695
   m_Direction: 1
   m_Center: {x: 0.00010412773, y: 0.0022436013, z: 0.0000114585955}
+--- !u!114 &-7167237288029577260
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 894909547639621015}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 348666a148f7ab0428ecd110e07b96f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

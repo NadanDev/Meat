@@ -1726,67 +1726,6 @@ public class EventHandler : MonoBehaviour
             }
         }
 
-
-        /*
-                // ORDER 5
-                dailyLog.Add($"- {(int)timer} seconds: Order 5 requested");
-                computerScript.updateLog();
-                requestedByTimes[4] = 110 + (15 * difficulty) + (int)timer;
-                Day2Text();
-                OrderTags[4].SetActive(true);
-                Orders[4, 0] = 3;
-                Orders[4, 4] = 2;
-                OrdersCombined[0] += 3;
-                OrdersCombined[4] += 2;
-                yield return new WaitForSeconds(1f);
-
-                StartCoroutine(OrderTimer(110 + (15 * difficulty), 4, 3, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0));
-                Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-                Alarm.Play();
-                StartCoroutine(switchRed());
-                yield return new WaitForSeconds(3f);
-                Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-                yield return new WaitForSeconds(3f);
-                Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-                yield return new WaitForSeconds(3f);
-                Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-                yield return new WaitForSeconds(3f);
-                Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-
-
-
-                yield return new WaitForSeconds(99f + (15 * difficulty));*/
-
-
-
-        /*// ORDER 6
-        dailyLog.Add($"- {(int)timer} seconds: Order 6 requested");
-        computerScript.updateLog();
-        orderContents[5] += $"";
-        OrderTags[5].SetActive(true);
-        Orders[5, 0] = 2;
-        Orders[5, 1] = 2;
-        Orders[5, 2] = 1;
-        OrdersCombined[0] += 2;
-        OrdersCombined[1] += 2;
-        OrdersCombined[2] += 1;
-        yield return new WaitForSeconds(1f);
-
-        StartCoroutine(OrderTimer(90 + (15 * difficulty), 5, 2, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-
-
-
-        yield return new WaitForSeconds(78f + (15 * difficulty));*/
-
         for (int i = 0; i < 11; i++)
         {
             errors[i] += errorsMidOrder[i];
@@ -1797,16 +1736,10 @@ public class EventHandler : MonoBehaviour
 
     public void Day2Text()
     {
-        /*orderContents[0] = $"Order Contents: \n\n- 3 Half Pieces Of Meat {(ordersComplete[0] ? 3 : ordersSent[0])}/3\n\n Requested By: {requestedByTimes[0]} Seconds";
-        orderContents[1] = $"Order Contents: \n\n- 1 Bag Containing 1 And A Half Pieces Of Meat {(ordersComplete[1] ? 1 : ordersSent[4])}/1\n\n Requested By: {requestedByTimes[1]} Seconds";
-        orderContents[2] = $"Order Contents: \n\n- 1 Bag Containing 2 Uncut Pieces Of Meat {(ordersComplete[2] ? 1 : ordersSent[5])}/1\n- 2 Half Pieces Of Meat {(ordersComplete[2] ? 2 : ordersSent[0])}/2\n\nRequested By: {requestedByTimes[2]} Seconds";
-        orderContents[3] = $"Order Contents: \n\n- 3 Bags Containing 1 Uncut Piece Of Meat {(ordersComplete[3] ? 3 : ordersSent[3])}/3\n\n Requested By: {requestedByTimes[3]} Seconds";
-        orderContents[4] = $"Order Contents: \n\n- 2 Bags Containing 1 And A Half Pieces Of Meat {(ordersComplete[4] ? 2 : ordersSent[4])}/2\n- 3 Half Pieces Of Meat {(ordersComplete[4] ? 3 : ordersSent[0])}/3\n\n Requested By: {requestedByTimes[4]} Seconds";*/
         orderContents[0] = $"Order Contents: \n\n- 3 Half Pieces Of Meat {(ordersComplete[0] ? 3 : ordersFailed[0] ? 0 : ordersSent[0])}/3\n\n Requested By: {requestedByTimes[0]} Seconds";
         orderContents[1] = $"Order Contents: \n\n- 1 Bag Containing 1 And A Half Pieces Of Meat {(ordersComplete[1] ? 1 : ordersFailed[1] ? 0 : ordersSent[4])}/1\n\n Requested By: {requestedByTimes[1]} Seconds";
         orderContents[2] = $"Order Contents: \n\n- 1 Bag Containing 2 Uncut Pieces Of Meat {(ordersComplete[2] ? 1 : ordersFailed[2] ? 0 : ordersSent[5])}/1\n- 2 Half Pieces Of Meat {(ordersComplete[2] ? 2 : ordersFailed[2] ? 0 : ordersSent[0])}/2\n\nRequested By: {requestedByTimes[2]} Seconds";
         orderContents[3] = $"Order Contents: \n\n- 3 Bags Containing 1 Uncut Piece Of Meat {(ordersComplete[3] ? 3 : ordersFailed[3] ? 0 : ordersSent[3])}/3\n\n Requested By: {requestedByTimes[3]} Seconds";
-        //orderContents[4] = $"Order Contents: \n\n- 2 Bags Containing 1 And A Half Pieces Of Meat {(ordersComplete[4] ? 2 : ordersFailed[4] ? 0 : ordersSent[4])}/2\n- 3 Half Pieces Of Meat {(ordersComplete[4] ? 3 : ordersFailed[4] ? 0 : ordersSent[0])}/3\n\n Requested By: {requestedByTimes[4]} Seconds";
         ordersComplete[4] = true;
         ordersComplete[5] = true;
         ordersComplete[6] = true;
@@ -2209,44 +2142,7 @@ public class EventHandler : MonoBehaviour
 
 
 
-        /*// ORDER 7
-        dailyLog.Add($"- {(int)timer} seconds: Order 7 requested");
-        computerScript.updateLog();
-        requestedByTimes[6] = 140 + (15 * difficulty) + (int)timer;
-        Day3Text();
-        OrderTags[6].SetActive(true);
-        Orders[6, 4] = 1;
-        Orders[6, 8] = 2;
-        Orders[6, 9] = 3;
-        OrdersCombined[4] += 1;
-        OrdersCombined[8] += 2;
-        OrdersCombined[9] += 3;
-        yield return new WaitForSeconds(1f);
-
-        StartCoroutine(OrderTimer(140 + (15 * difficulty), 6, 0, 0, 0, 0, 1, 0, 0, 0, 2, 3, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-
-
-
-        yield return new WaitForSeconds(123f + (15 * difficulty));*/
-
-
-
-        // ORDER 8
+        // ORDER 7
         for (int i = 0; i < 11; i++)
         {
             errors[i] += errorsMidOrder[i];
@@ -2283,21 +2179,12 @@ public class EventHandler : MonoBehaviour
 
     public void Day3Text()
     {
-        /*orderContents[0] = $"Order Contents: \n\n- 1 Half Piece Of Meat {(ordersComplete[0] ? 1 : ordersSent[0])}/1\n- 1 Uncut Piece Of Meat {(ordersComplete[0] ? 1 : ordersSent[1])}/1\n\n Requested By: {requestedByTimes[0]} Seconds";
-        orderContents[1] = $"Order Contents: \n\n- 1 Well Cooked Half Piece Of Meat {(ordersComplete[1] ? 1 : ordersSent[7])}/1\n- 1 Lightly Cooked Half Piece Of Meat {(ordersComplete[1] ? 1 : ordersSent[6])}/1\n\n Requested By: {requestedByTimes[1]} Seconds";
-        orderContents[2] = $"Order Contents: \n\n- 1 Bag Containing 1 Uncut Piece Of Meat {(ordersComplete[2] ? 1 : ordersSent[3])}/1\n- 1 Uncut Piece Of Meat {(ordersComplete[2] ? 1 : ordersSent[1])}/1\n- 1 Lightly Cooked Uncut Piece Of Meat {(ordersComplete[2] ? 1 : ordersSent[8])}/1\n\nRequested By: {requestedByTimes[2]} Seconds";
-        orderContents[3] = $"Order Contents: \n\n- 2 Well Cooked Uncut Pieces Of Meat {(ordersComplete[3] ? 2 : ordersSent[9])}/2\n- 3 Half Pieces Of Meat {(ordersComplete[3] ? 3 : ordersSent[0])}/3\n- 1 Bag Containing A Half Piece Of Meat {(ordersComplete[3] ? 1 : ordersSent[2])}/1\n\n Requested By: {requestedByTimes[3]} Seconds";
-        orderContents[4] = $"Order Contents: \n\n- 1 Well Cooked Uncut Piece Of Meat {(ordersComplete[4] ? 1 : ordersSent[9])}/1\n- 1 Lightly Cooked Uncut Piece Of Meat {(ordersComplete[4] ? 1 : ordersSent[8])}/1\n- 1 Well Cooked Half Piece Of Meat {(ordersComplete[4] ? 1 : ordersSent[7])}/1\n- 1 Lightly Cooked Half Piece Of Meat {(ordersComplete[4] ? 1 : ordersSent[6])}/1\n\n Requested By: {requestedByTimes[4]} Seconds";
-        orderContents[5] = $"Order Contents: \n\n- 2 Half Pieces Of Meat {(ordersComplete[5] ? 2 : ordersSent[0])}/2\n- 1 Uncut Piece Of Meat {(ordersComplete[5] ? 1 : ordersSent[1])}/1\n- 1 Bag Containing A Half Piece Of Meat {(ordersComplete[5] ? 1 : ordersSent[2])}/1\n\nRequested By: {requestedByTimes[5]} Seconds";
-        orderContents[6] = $"Order Contents: \n\n- 2 Lightly Cooked Uncut Pieces Of Meat {(ordersComplete[6] ? 2 : ordersSent[8])}/2\n- 3 Well Cooked Uncut Pieces Of Meat {(ordersComplete[6] ? 3 : ordersSent[9])}/3\n- 1 Bag Containing 1 And A Half Pieces Of Meat {(ordersComplete[6] ? 1 : ordersSent[4])}/1\n\nRequested By: {requestedByTimes[6]} Seconds";
-        orderContents[7] = $"Order Contents: \n\n- 2 Arms\n\nRequested By: {requestedByTimes[7]} Seconds";*/
         orderContents[0] = $"Order Contents: \n\n- 1 Half Piece Of Meat {(ordersComplete[0] ? 1 : ordersFailed[0] ? 0 : ordersSent[0])}/1\n- 1 Uncut Piece Of Meat {(ordersComplete[0] ? 1 : ordersFailed[0] ? 0 : ordersSent[1])}/1\n\n Requested By: {requestedByTimes[0]} Seconds";
         orderContents[1] = $"Order Contents: \n\n- 1 Well Cooked Half Piece Of Meat {(ordersComplete[1] ? 1 : ordersFailed[1] ? 0 : ordersSent[7])}/1\n- 1 Lightly Cooked Half Piece Of Meat {(ordersComplete[1] ? 1 : ordersFailed[1] ? 0 : ordersSent[6])}/1\n\n Requested By: {requestedByTimes[1]} Seconds";
         orderContents[2] = $"Order Contents: \n\n- 1 Bag Containing 1 Uncut Piece Of Meat {(ordersComplete[2] ? 1 : ordersFailed[2] ? 0 : ordersSent[3])}/1\n- 1 Uncut Piece Of Meat {(ordersComplete[2] ? 1 : ordersFailed[2] ? 0 : ordersSent[1])}/1\n- 1 Lightly Cooked Uncut Piece Of Meat {(ordersComplete[2] ? 1 : ordersFailed[2] ? 0 : ordersSent[8])}/1\n\nRequested By: {requestedByTimes[2]} Seconds";
         orderContents[3] = $"Order Contents: \n\n- 2 Well Cooked Uncut Pieces Of Meat {(ordersComplete[3] ? 2 : ordersFailed[3] ? 0 : ordersSent[9])}/2\n- 3 Half Pieces Of Meat {(ordersComplete[3] ? 3 : ordersFailed[3] ? 0 : ordersSent[0])}/3\n- 1 Bag Containing A Half Piece Of Meat {(ordersComplete[3] ? 1 : ordersFailed[3] ? 0 : ordersSent[2])}/1\n\n Requested By: {requestedByTimes[3]} Seconds";
         orderContents[4] = $"Order Contents: \n\n- 1 Well Cooked Uncut Piece Of Meat {(ordersComplete[4] ? 1 : ordersFailed[4] ? 0 : ordersSent[9])}/1\n- 1 Lightly Cooked Uncut Piece Of Meat {(ordersComplete[4] ? 1 : ordersFailed[4] ? 0 : ordersSent[8])}/1\n- 1 Well Cooked Half Piece Of Meat {(ordersComplete[4] ? 1 : ordersFailed[4] ? 0 : ordersSent[7])}/1\n- 1 Lightly Cooked Half Piece Of Meat {(ordersComplete[4] ? 1 : ordersFailed[4] ? 0 : ordersSent[6])}/1\n\n Requested By: {requestedByTimes[4]} Seconds";
         orderContents[5] = $"Order Contents: \n\n- 2 Half Pieces Of Meat {(ordersComplete[5] ? 2 : ordersFailed[5] ? 0 : ordersSent[0])}/2\n- 1 Uncut Piece Of Meat {(ordersComplete[5] ? 1 : ordersFailed[5] ? 0 : ordersSent[1])}/1\n- 1 Bag Containing A Half Piece Of Meat {(ordersComplete[5] ? 1 : ordersFailed[5] ? 0 : ordersSent[2])}/1\n\nRequested By: {requestedByTimes[5]} Seconds";
-        //orderContents[6] = $"Order Contents: \n\n- 2 Lightly Cooked Uncut Pieces Of Meat {(ordersComplete[6] ? 2 : ordersFailed[6] ? 0 : ordersSent[8])}/2\n- 3 Well Cooked Uncut Pieces Of Meat {(ordersComplete[6] ? 3 : ordersFailed[6] ? 0 : ordersSent[9])}/3\n- 1 Bag Containing 1 And A Half Pieces Of Meat {(ordersComplete[6] ? 1 : ordersFailed[6] ? 0 : ordersSent[4])}/1\n\nRequested By: {requestedByTimes[6]} Seconds";
         orderContents[6] = $"Order Contents: \n\n- 2 Arms\n\nRequested By: {requestedByTimes[6]} Seconds";
         ordersComplete[7] = true;
         ordersComplete[8] = true;
@@ -2707,41 +2594,7 @@ public class EventHandler : MonoBehaviour
 
 
 
-        /*// ORDER 7
-        dailyLog.Add($"- {(int)timer} seconds: Order 7 requested");
-        computerScript.updateLog();
-        orderContents[6] += $"{120 + (15 * difficulty) + (int)timer} Seconds";
-        OrderTags[6].SetActive(true);
-        Orders[6, 2] = 1;
-        Orders[6, 3] = 3;
-        Orders[6, 6] = 1;
-        OrdersCombined[2] += 1;
-        OrdersCombined[3] += 3;
-        OrdersCombined[6] += 1;
-        yield return new WaitForSeconds(1f);
-
-        StartCoroutine(OrderTimer(120 + (15 * difficulty), 6, 0, 0, 1, 3, 0, 0, 1, 0, 0, 0, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-
-
-
-        yield return new WaitForSeconds(95f + (15 * difficulty));*/
-
-
-
-        // ORDER 8
+        // ORDER 7
         OrderTags[6].SetActive(true);
         if (skipTo < 7)
         {
@@ -2803,7 +2656,7 @@ public class EventHandler : MonoBehaviour
 
 
 
-        // ORDER 9
+        // ORDER 8
         OrderTags[7].SetActive(true);
         if (skipTo < 8)
         {
@@ -2864,50 +2717,7 @@ public class EventHandler : MonoBehaviour
 
 
 
-        /*// ORDER 10
-        dailyLog.Add($"- {(int)timer} seconds: Order 9 requested");
-        computerScript.updateLog();
-        requestedByTimes[8] = 140 + (15 * difficulty) + (int)timer;
-        Day4Text();
-        OrderTags[8].SetActive(true);
-        Orders[8, 0] = 8;
-        Orders[8, 1] = 1;
-        Orders[8, 5] = 2;
-        OrdersCombined[0] += 8;
-        OrdersCombined[1] += 1;
-        OrdersCombined[5] += 2;
-        yield return new WaitForSeconds(1f);
-
-        StartCoroutine(OrderTimer(140 + (15 * difficulty), 8, 8, 1, 0, 0, 0, 2, 0, 0, 0, 0, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-
-
-
-        yield return new WaitForSeconds(114f + (15 * difficulty));*/
-
-
-
-        // ORDER 11
+        // ORDER 9
         for (int i = 0; i < 11; i++)
         {
             errors[i] += errorsMidOrder[i];
@@ -2952,17 +2762,6 @@ public class EventHandler : MonoBehaviour
 
     public void Day4Text()
     {
-        /*orderContents[0] = $"Order Contents: \n\n- 1 Half Piece Of Meat {(ordersComplete[0] ? 1 : ordersFailed[0] ? 0 : ordersSent[0])}/1\n- 2 Uncut Pieces Of Meat {(ordersComplete[0] ? 2 : ordersSent[1])}/2\n\n Requested By: {requestedByTimes[0]} Seconds";
-        orderContents[1] = $"Order Contents: \n\n- 1 Half Piece Of Meat {(ordersComplete[1] ? 1 : ordersSent[0])}/1\n- 2 Lightly Cooked Uncut Pieces Of Meat {(ordersComplete[1] ? 2 : ordersSent[8])}/2\n- 1 Bag Containing A Half Piece Of Meat {(ordersComplete[1] ? 1 : ordersSent[2])}/1\n\n Requested By: {requestedByTimes[1]} Seconds";
-        orderContents[2] = $"Order Contents: \n\n- 1 Bag Containing 1 Uncut Piece Of Meat {(ordersComplete[2] ? 1 : ordersSent[3])}/1\n- 1 Bag Containing A Half Piece Of Meat {(ordersComplete[2] ? 1 : ordersSent[2])}/1\n- 1 Bag Containing 1 And A Half Pieces Of Meat {(ordersComplete[2] ? 1 : ordersSent[4])}/1\n\nRequested By: {requestedByTimes[2]} Seconds";
-        orderContents[3] = $"Order Contents: \n\n- 1 Uncut Piece Of Meat {(ordersComplete[3] ? 1 : ordersSent[1])}/1\n- 2 Bags Containing A Half Piece Of Meat {(ordersComplete[3] ? 2 : ordersSent[2])}/2\n- 1 Well Cooked Half Piece Of Meat {(ordersComplete[3] ? 1 : ordersSent[7])}/1\n\n Requested By: {requestedByTimes[3]} Seconds";
-        orderContents[4] = $"Order Contents: \n\n- 3 Half Pieces Of Meat {(ordersComplete[4] ? 3 : ordersSent[0])}/3\n- 1 Bag Containing 1 And A Half Pieces Of Meat {(ordersComplete[4] ? 1 : ordersSent[4])}/1\n- 1 Well Cooked Uncut Piece Of Meat {(ordersComplete[4] ? 1 : ordersSent[9])}/1\n\n Requested By: {requestedByTimes[4]} Seconds";
-        orderContents[5] = $"Order Contents: \n\n- 2 Uncut Pieces Of Meat {(ordersComplete[5] ? 2 : ordersFailed[5] ? 0 : ordersSent[1])}/2\n- 1 Bag Containing 1 Uncut Piece Of Meat {(ordersComplete[5] ? 1 : ordersSent[3])}/1\n- 1 Bag Containing 2 Uncut Pieces Of Meat {(ordersComplete[5] ? 1 : ordersSent[5])}/1\n- 2 Lightly Cooked Half Pieces Of Meat {(ordersComplete[5] ? 2 : ordersSent[6])}/2\n\nRequested By: {requestedByTimes[5]} Seconds";
-        //orderContents[6] = $"Order Contents: \n\n- 1 Bag Containing A Half Piece Of Meat\n- 3 Bags Containing 1 Uncut Piece Of Meat\n- 1 Lightly Cooked Half Piece Of Meat\n\nRequested By: ";
-        orderContents[6] = $"Order Contents: \n\n- 3 Uncut Pieces Of Meat {(ordersComplete[6] ? 3 : ordersSent[1])}/3\n- 4 Half Pieces Of Meat {(ordersComplete[6] ? 4 : ordersSent[0])}/4\n\nRequested By: {requestedByTimes[6]} Seconds";
-        orderContents[7] = $"Order Contents: \n\n- 2 Lightly Cooked Half Pieces Of Meat {(ordersComplete[7] ? 2 : ordersSent[6])}/2\n- 2 Well Cooked Half Pieces Of Meat {(ordersComplete[7] ? 2 : ordersSent[7])}/2\n- 1 Well Cooked Uncut Piece Of Meat {(ordersComplete[7] ? 1 : ordersSent[9])}/1\n\nRequested By: {requestedByTimes[7]} Seconds";
-        orderContents[8] = $"Order Contents: \n\n- 8 Half Pieces Of Meat {(ordersComplete[8] ? 8 : ordersSent[0])}/8\n- 1 Uncut Piece Of Meat {(ordersComplete[8] ? 1 : ordersSent[1])}/1\n- 2 Bags Containing 2 Uncut Pieces Of Meat {(ordersComplete[8] ? 2 : ordersSent[5])}/2\n\nRequested By: {requestedByTimes[8]} Seconds";
-        orderContents[9] = $"Order Contents: \n\n- 5 Arms\n- 1 Liver\n\nRequested By: {requestedByTimes[9]} Seconds";*/
         orderContents[0] = $"Order Contents: \n\n- 1 Half Piece Of Meat {(ordersComplete[0] ? 1 : ordersFailed[0] ? 0 : ordersSent[0])}/1\n- 2 Uncut Pieces Of Meat {(ordersComplete[0] ? 2 : ordersFailed[0] ? 0 : ordersSent[1])}/2\n\n Requested By: {requestedByTimes[0]} Seconds";
         orderContents[1] = $"Order Contents: \n\n- 1 Half Piece Of Meat {(ordersComplete[1] ? 1 : ordersFailed[1] ? 0 : ordersSent[0])}/1\n- 2 Lightly Cooked Uncut Pieces Of Meat {(ordersComplete[1] ? 2 : ordersFailed[1] ? 0 : ordersSent[8])}/2\n\n Requested By: {requestedByTimes[1]} Seconds";
         orderContents[2] = $"Order Contents: \n\n- 1 Bag Containing A Half Piece Of Meat {(ordersComplete[2] ? 1 : ordersFailed[2] ? 0 : ordersSent[2])}/1\n- 1 Bag Containing 1 And A Half Pieces Of Meat {(ordersComplete[2] ? 1 : ordersFailed[2] ? 0 : ordersSent[4])}/1\n\nRequested By: {requestedByTimes[2]} Seconds";
@@ -2971,7 +2770,6 @@ public class EventHandler : MonoBehaviour
         orderContents[5] = $"Order Contents: \n\n- 2 Uncut Pieces Of Meat {(ordersComplete[5] ? 2 : ordersFailed[5] ? 0 : ordersSent[1])}/2\n- 1 Bag Containing 2 Uncut Pieces Of Meat {(ordersComplete[5] ? 1 : ordersFailed[5] ? 0 : ordersSent[5])}/1\n- 2 Lightly Cooked Half Pieces Of Meat {(ordersComplete[5] ? 2 : ordersFailed[5] ? 0 : ordersSent[6])}/2\n\nRequested By: {requestedByTimes[5]} Seconds";
         orderContents[6] = $"Order Contents: \n\n- 3 Uncut Pieces Of Meat {(ordersComplete[6] ? 3 : ordersFailed[6] ? 0 : ordersSent[1])}/3\n- 4 Half Pieces Of Meat {(ordersComplete[6] ? 4 : ordersFailed[6] ? 0 : ordersSent[0])}/4\n\nRequested By: {requestedByTimes[6]} Seconds";
         orderContents[7] = $"Order Contents: \n\n- 2 Lightly Cooked Half Pieces Of Meat {(ordersComplete[7] ? 2 : ordersFailed[7] ? 0 : ordersSent[6])}/2\n- 2 Well Cooked Half Pieces Of Meat {(ordersComplete[7] ? 2 : ordersFailed[7] ? 0 : ordersSent[7])}/2\n- 1 Well Cooked Uncut Piece Of Meat {(ordersComplete[7] ? 1 : ordersFailed[7] ? 0 : ordersSent[9])}/1\n\nRequested By: {requestedByTimes[7]} Seconds";
-        //orderContents[8] = $"Order Contents: \n\n- 8 Half Pieces Of Meat {(ordersComplete[8] ? 8 : ordersFailed[8] ? 0 : ordersSent[0])}/8\n- 1 Uncut Piece Of Meat {(ordersComplete[8] ? 1 : ordersFailed[8] ? 0 : ordersSent[1])}/1\n- 2 Bags Containing 2 Uncut Pieces Of Meat {(ordersComplete[8] ? 2 : ordersFailed[8] ? 0 : ordersSent[5])}/2\n\nRequested By: {requestedByTimes[8]} Seconds";
         orderContents[8] = $"Order Contents: \n\n- 5 Arms\n- 1 Liver\n\nRequested By: {requestedByTimes[8]} Seconds";
         ordersComplete[9] = true;
         ordersComplete[10] = true;
@@ -3289,44 +3087,7 @@ public class EventHandler : MonoBehaviour
 
 
 
-        /*// ORDER 6
-        dailyLog.Add($"- {(int)timer} seconds: Order 6 requested");
-        computerScript.updateLog();
-        requestedByTimes[5] = 110 + (15 * difficulty) + (int)timer;
-        Day5Text();
-        OrderTags[5].SetActive(true);
-        Orders[5, 0] = 2;
-        Orders[5, 1] = 1;
-        Orders[5, 5] = 2;
-        OrdersCombined[0] += 2;
-        OrdersCombined[1] += 1;
-        OrdersCombined[5] += 2;
-        yield return new WaitForSeconds(1f);
-
-        StartCoroutine(OrderTimer(110 + (15 * difficulty), 5, 2, 1, 0, 0, 0, 2, 0, 0, 0, 0, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-
-
-
-        yield return new WaitForSeconds(93f + (15 * difficulty));*/
-
-
-
-        // ORDER 7
+        // ORDER 6
         OrderTags[5].SetActive(true);
         if (skipTo < 6)
         {
@@ -3386,7 +3147,7 @@ public class EventHandler : MonoBehaviour
 
 
 
-        // ORDER 8
+        // ORDER 7
         OrderTags[6].SetActive(true);
         if (skipTo < 7)
         {
@@ -3442,7 +3203,7 @@ public class EventHandler : MonoBehaviour
 
 
 
-        // ORDER 9
+        // ORDER 8
         OrderTags[7].SetActive(true);
         if (skipTo < 8)
         {
@@ -3498,7 +3259,7 @@ public class EventHandler : MonoBehaviour
 
 
 
-        // ORDER 10
+        // ORDER 9
         OrdersLeftArrow.SetActive(true);
         OrdersRightArrow.SetActive(true);
         OrderTags[8].SetActive(true);
@@ -3566,7 +3327,7 @@ public class EventHandler : MonoBehaviour
 
 
 
-        // ORDER 11
+        // ORDER 10
         OrderTags[9].SetActive(true);
         if (skipTo < 10)
         {
@@ -3634,131 +3395,6 @@ public class EventHandler : MonoBehaviour
             }
         }
 
-
-
-        /*// ORDER 12
-        dailyLog.Add($"- {(int)timer} seconds: Order 12 requested");
-        computerScript.updateLog();
-        orderContents[11] += $"";
-        OrderTags[11].SetActive(true);
-        Orders[11, 0] = 3;
-        Orders[11, 5] = 1;
-        Orders[11, 6] = 2;
-        Orders[11, 8] = 1;
-        Orders[11, 10] = 1;
-        OrdersCombined[0] += 3;
-        OrdersCombined[5] += 1;
-        OrdersCombined[6] += 2;
-        OrdersCombined[8] += 1;
-        OrdersCombined[10] += 1;
-        yield return new WaitForSeconds(1f);
-
-        StartCoroutine(OrderTimer(110 + (15 * difficulty), 11, 3, 0, 0, 0, 0, 1, 2, 0, 1, 0, 1));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-
-
-
-        yield return new WaitForSeconds(79f + (15 * difficulty));*/
-
-
-
-        /*// ORDER 13
-        dailyLog.Add($"- {(int)timer} seconds: Order 13 requested");
-        computerScript.updateLog();
-        orderContents[12] += $"";
-        OrderTags[12].SetActive(true);
-        Orders[12, 1] = 3;
-        Orders[12, 2] = 1;
-        Orders[12, 3] = 1;
-        Orders[12, 4] = 1;
-        OrdersCombined[1] += 3;
-        OrdersCombined[2] += 1;
-        OrdersCombined[3] += 1;
-        OrdersCombined[4] += 1;
-        yield return new WaitForSeconds(1f);
-
-        StartCoroutine(OrderTimer(120 + (15 * difficulty), 12, 0, 3, 1, 1, 1, 0, 0, 0, 0, 0, 0));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-
-
-
-        yield return new WaitForSeconds(92f + (15 * difficulty));*/
-
-
-        /*// ORDER 14
-        dailyLog.Add($"- {(int)timer} seconds: Order 14 requested");
-        computerScript.updateLog();
-        orderContents[13] += $"";
-        OrderTags[13].SetActive(true);
-        Orders[13, 1] = 1;
-        Orders[13, 2] = 1;
-        Orders[13, 3] = 1;
-        Orders[13, 6] = 3;
-        Orders[13, 9] = 2;
-        Orders[13, 10] = 5;
-        OrdersCombined[1] += 3;
-        OrdersCombined[2] += 1;
-        OrdersCombined[3] += 1;
-        OrdersCombined[6] += 3;
-        OrdersCombined[9] += 2;
-        OrdersCombined[10] += 5;
-        yield return new WaitForSeconds(1f);
-
-        StartCoroutine(OrderTimer(140 + (15 * difficulty), 12, 0, 1, 1, 1, 0, 0, 3, 0, 0, 2, 5));
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        Alarm.Play();
-        StartCoroutine(switchRed());
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-        yield return new WaitForSeconds(3f);
-        Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-
-        yield return new WaitForSeconds(111f + (15 * difficulty));*/
-
         for (int i = 0; i < 11; i++)
         {
             errors[i] += errorsMidOrder[i];
@@ -3781,32 +3417,17 @@ public class EventHandler : MonoBehaviour
      
     public void Day5Text()
     {
-        /*orderContents[0] = $"Order Contents: \n\n- 2 Uncut Pieces Of Meat {(ordersComplete[0] ? 2 : ordersSent[1])}/2\n\n Requested By: {requestedByTimes[0]} Seconds";
-        orderContents[1] = $"Order Contents: \n\n- 1 Half Piece Of Meat {(ordersComplete[1] ? 1 : ordersSent[0])}/1\n- 1 Uncut Piece Of Meat {(ordersComplete[1] ? 1 : ordersSent[1])}/1\n\n Requested By: {requestedByTimes[1]} Seconds";
-        orderContents[2] = $"Order Contents: \n\n- 2 Jars Of Meat {(ordersComplete[2] ? 2 : ordersSent[10])}/2\n\nRequested By: {requestedByTimes[2]} Seconds";
-        orderContents[3] = $"Order Contents: \n\n- 1 Half Piece Of Meat {(ordersComplete[3] ? 1 : ordersSent[0])}/1\n- 2 Bags Containing A Half Piece Of Meat {(ordersComplete[3] ? 2 : ordersSent[2])}/2\n\n Requested By: {requestedByTimes[3]} Seconds";
-        orderContents[4] = $"Order Contents: \n\n- 1 Bag Containing 1 Uncut Piece Of Meat {(ordersComplete[4] ? 1 : ordersSent[3])}/1\n- 1 Bag Containing 1 And A Half Pieces Of Meat {(ordersComplete[4] ? 1 : ordersSent[4])}/1\n\n Requested By: {requestedByTimes[4]} Seconds";
-        orderContents[5] = $"Order Contents: \n\n- 2 Bags Containing 2 Uncut Pieces Of Meat {(ordersComplete[5] ? 2 : ordersSent[5])}/2\n- 2 Half Piece Of Meat {(ordersComplete[5] ? 2 : ordersSent[0])}/2\n- 1 Uncut Piece Of Meat {(ordersComplete[5] ? 1 : ordersSent[1])}/1\n\nRequested By: {requestedByTimes[5]} Seconds";
-        orderContents[6] = $"Order Contents: \n\n- 3 Jars Of Meat {(ordersComplete[6] ? 3 : ordersSent[10])}/3\n- 1 Half Piece Of Meat {(ordersComplete[6] ? 1 : ordersSent[0])}/1\n- 1 Bag Containing A Half Piece Of Meat {(ordersComplete[6] ? 1 : ordersSent[2])}/1\n\nRequested By: {requestedByTimes[6]} Seconds";
-        orderContents[7] = $"Order Contents: \n\n- 1 Well Cooked Uncut Piece Of Meat {(ordersComplete[7] ? 1 : ordersSent[9])}/1\n- 1 Lightly Cooked Half Piece Of Meat {(ordersComplete[7] ? 1 : ordersSent[6])}/1\n\nRequested By: {requestedByTimes[7]} Seconds";
-        orderContents[8] = $"Order Contents: \n\n- 5 Jars Of Meat {(ordersComplete[8] ? 5 : ordersSent[10])}/5\n\nRequested By: {requestedByTimes[8]} Seconds";
-        orderContents[9] = $"Order Contents: \n\n- 3 Well Cooked Half Pieces Of Meat {(ordersComplete[9] ? 3 : ordersSent[7])}/3\n- 1 Well Cooked Uncut Piece Of Meat {(ordersComplete[9] ? 1 : ordersSent[9])}/1\n- 1 Bag Containing 1 And A Half Pieces Of Meat {(ordersComplete[9] ? 1 : ordersSent[4])}/1\n- 1 Uncut Piece Of Meat {(ordersComplete[9] ? 1 : ordersSent[1])}/1\n\nRequested By: {requestedByTimes[9]} Seconds";
-        orderContents[10] = $"Order Contents: \n\n- 2 Bags Containing 1 Uncut Piece Of Meat {(ordersComplete[10] ? 2 : ordersSent[3])}/2\n- 3 Half Pieces Of Meat {(ordersComplete[10] ? 3 : ordersSent[0])}/3\n- 1 Jar Of Meat {(ordersComplete[10] ? 1 : ordersSent[10])}/1\n- 1 Well Cooked Uncut Piece Of Meat Of Meat {(ordersComplete[9] ? 1 : ordersSent[9])}/1\n- 1 Well Cooked Half Piece Of Meat {(ordersComplete[7] ? 1 : ordersSent[7])}/1\n\nRequested By: {requestedByTimes[10]} Seconds";*/
         orderContents[0] = $"Order Contents: \n\n- 2 Uncut Pieces Of Meat {(ordersComplete[0] ? 2 : ordersFailed[0] ? 0 : ordersSent[1])}/2\n\n Requested By: {requestedByTimes[0]} Seconds";
         orderContents[1] = $"Order Contents: \n\n- 1 Half Piece Of Meat {(ordersComplete[1] ? 1 : ordersFailed[1] ? 0 : ordersSent[0])}/1\n- 1 Uncut Piece Of Meat {(ordersComplete[1] ? 1 : ordersFailed[1] ? 0 : ordersSent[1])}/1\n\n Requested By: {requestedByTimes[1]} Seconds";
         orderContents[2] = $"Order Contents: \n\n- 2 Jars Of Meat {(ordersComplete[2] ? 2 : ordersFailed[2] ? 0 : ordersSent[10])}/2\n\nRequested By: {requestedByTimes[2]} Seconds";
         orderContents[3] = $"Order Contents: \n\n- 1 Well Cooked Half Piece Of Meat {(ordersComplete[3] ? 1 : ordersFailed[3] ? 0 : ordersSent[7])}/1\n- 2 Bags Containing A Half Piece Of Meat {(ordersComplete[3] ? 2 : ordersFailed[3] ? 0 : ordersSent[2])}/2\n\n Requested By: {requestedByTimes[3]} Seconds";
         orderContents[4] = $"Order Contents: \n\n- 1 Bag Containing 1 Uncut Piece Of Meat {(ordersComplete[4] ? 1 : ordersFailed[4] ? 0 : ordersSent[3])}/1\n- 1 Bag Containing 1 And A Half Pieces Of Meat {(ordersComplete[4] ? 1 : ordersFailed[4] ? 0 : ordersSent[4])}/1\n\n Requested By: {requestedByTimes[4]} Seconds";
-        //orderContents[5] = $"Order Contents: \n\n- 2 Bags Containing 2 Uncut Pieces Of Meat {(ordersComplete[5] ? 2 : ordersFailed[5] ? 0 : ordersSent[5])}/2\n- 2 Half Piece Of Meat {(ordersComplete[5] ? 2 : ordersFailed[5] ? 0 : ordersSent[0])}/2\n- 1 Uncut Piece Of Meat {(ordersComplete[5] ? 1 : ordersFailed[5] ? 0 : ordersSent[1])}/1\n\nRequested By: {requestedByTimes[5]} Seconds";
         orderContents[5] = $"Order Contents: \n\n- 3 Jars Of Meat {(ordersComplete[5] ? 3 : ordersFailed[5] ? 0 : ordersSent[10])}/3\n- 1 Half Piece Of Meat {(ordersComplete[5] ? 1 : ordersFailed[5] ? 0 : ordersSent[0])}/1\n- 1 Bag Containing A Half Piece Of Meat {(ordersComplete[5] ? 1 : ordersFailed[5] ? 0 : ordersSent[2])}/1\n\nRequested By: {requestedByTimes[5]} Seconds";
         orderContents[6] = $"Order Contents: \n\n- 1 Well Cooked Uncut Piece Of Meat {(ordersComplete[6] ? 1 : ordersFailed[6] ? 0 : ordersSent[9])}/1\n- 1 Lightly Cooked Half Piece Of Meat {(ordersComplete[6] ? 1 : ordersFailed[6] ? 0 : ordersSent[6])}/1\n\nRequested By: {requestedByTimes[6]} Seconds";
         orderContents[7] = $"Order Contents: \n\n- 5 Jars Of Meat {(ordersComplete[7] ? 5 : ordersFailed[7] ? 0 : ordersSent[10])}/5\n\nRequested By: {requestedByTimes[7]} Seconds";
         orderContents[8] = $"Order Contents: \n\n- 3 Well Cooked Half Pieces Of Meat {(ordersComplete[8] ? 3 : ordersFailed[8] ? 0 : ordersSent[7])}/3\n- 1 Well Cooked Uncut Piece Of Meat {(ordersComplete[8] ? 1 : ordersFailed[8] ? 0 : ordersSent[9])}/1\n- 1 Bag Containing 1 And A Half Pieces Of Meat {(ordersComplete[8] ? 1 : ordersFailed[8] ? 0 : ordersSent[4])}/1\n- 1 Uncut Piece Of Meat {(ordersComplete[8] ? 1 : ordersFailed[8] ? 0 : ordersSent[1])}/1\n\nRequested By: {requestedByTimes[8]} Seconds";
         orderContents[9] = $"Order Contents: \n\n- 2 Bags Containing 1 Uncut Piece Of Meat {(ordersComplete[9] ? 2 : ordersFailed[9] ? 0 : ordersSent[3])}/2\n- 3 Half Pieces Of Meat {(ordersComplete[9] ? 3 : ordersFailed[9] ? 0 : ordersSent[0])}/3\n- 1 Jar Of Meat {(ordersComplete[9] ? 1 : ordersFailed[9] ? 0 : ordersSent[10])}/1\n- 1 Well Cooked Uncut Piece Of Meat Of Meat {(ordersComplete[9] ? 1 : ordersFailed[9] ? 0 : ordersSent[9])}/1\n- 1 Well Cooked Half Piece Of Meat {(ordersComplete[9] ? 1 : ordersFailed[9] ? 0 : ordersSent[7])}/1\n\nRequested By: {requestedByTimes[9]} Seconds";
         ordersComplete[10] = true;
-        //orderContents[11] = $"Order Contents: \n\n- 1 Lightly Cooked Uncut Piece Of Meat\n- 2 Lightly Cooked Half Pieces Of Meat\n- 3 Half Pieces Of Meat Unbagged\n- 1 Bag Containing 2 Uncut Pieces Of Meat\n- 1 Jar Of Meat\n\nRequested By: {110 + (15 * difficulty)} Seconds";
-        //orderContents[12] = $"Order Contents: \n\n- 1 Bag Containing A Half Piece Of Meat\n- 1 Bag Containing 1 Uncut Piece Of Meat\n- 1 Bag Containing 1 And A Half Pieces Of Meat\n- 3 Uncut Pieces Of Meat Unbagged\n\nRequested By: {120 + (15 * difficulty)} Seconds";
-        //orderContents[13] = $"Order Contents: \n\n- 5 Jars Of Meat\n- 1 Bag Containing 1 Uncut Piece Of Meat\n- 2 Well Cooked Uncut Pieces Of Meat\n- 3 Lightly Cooked Half Pieces Of Meat\n- 1 Bag Containing A Half Piece Of Meat\n- 1 Uncut Piece Of Meat Unbagged\n\nRequested By: {140 + (15 * difficulty)} Seconds";
         ordersComplete[11] = true;
         ordersComplete[12] = true;
         ordersComplete[13] = true;

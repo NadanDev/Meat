@@ -5821,6 +5821,7 @@ GameObject:
   - component: {fileID: 6968627695623074216}
   - component: {fileID: 6871635192328087171}
   - component: {fileID: 3152271306317072113}
+  - component: {fileID: -93946813872011786}
   m_Layer: 10
   m_Name: MeatPiece1
   m_TagString: Meat
@@ -5905,7 +5906,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 24300002, guid: 0d261692b20914349853ef14c297ae4f, type: 2}
-  m_audioClip: {fileID: 8300000, guid: 966bd93dc7e18584ebd3b8e0f5f2d906, type: 3}
+  m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 966bd93dc7e18584ebd3b8e0f5f2d906, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
@@ -6002,7 +6003,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 24300002, guid: 0d261692b20914349853ef14c297ae4f, type: 2}
-  m_audioClip: {fileID: 8300000, guid: acf611b36a8447b4c9f2ddd240b895ca, type: 3}
+  m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: acf611b36a8447b4c9f2ddd240b895ca, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
@@ -6099,7 +6100,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 24300002, guid: 0d261692b20914349853ef14c297ae4f, type: 2}
-  m_audioClip: {fileID: 8300000, guid: 0eb735befe9b99e4791787dbeebbc368, type: 3}
+  m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 0eb735befe9b99e4791787dbeebbc368, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
@@ -6196,7 +6197,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 24300002, guid: 0d261692b20914349853ef14c297ae4f, type: 2}
-  m_audioClip: {fileID: 8300000, guid: dd4e3e078ab45814493fc1fa93400c3e, type: 3}
+  m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: dd4e3e078ab45814493fc1fa93400c3e, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 0.7
@@ -6283,6 +6284,18 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &-93946813872011786
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6224437528260351050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 348666a148f7ab0428ecd110e07b96f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8243355587128158582
 GameObject:
   m_ObjectHideFlags: 0

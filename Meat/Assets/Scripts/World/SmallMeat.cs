@@ -195,32 +195,6 @@ public class SmallMeat : MonoBehaviour
                 computerScript.updateLog();
             }
 
-
-            /*for (int i = 0; i < EventHandler.i.Errors.Length; i++)
-            {
-                print("Error for " + i + ": " + EventHandler.i.Errors[i]);
-            }
-            print("\n");
-            for (int i = 0; i < EventHandler.i.OrdersCombined.Length; i++)
-            {
-                print("Combined for " + i + ": " + EventHandler.i.OrdersCombined[i]);
-            }
-            print("\n");
-            for (int i = 0; i < EventHandler.i.Orders.GetLength(0); i++)  // Loop through rows
-            {
-                for (int j = 0; j < EventHandler.i.Orders.GetLength(1); j++)  // Loop through columns
-                {
-                    print("Orders for " + i + "," + j + ": " + EventHandler.i.Orders[i,j]);
-                }
-                print("\n");
-            }
-            print("\n");
-            for (int i = 0; i < EventHandler.i.OrdersSent.Length; i++)
-            {
-                print("Sent for " + i + ": " + EventHandler.i.OrdersSent[i]);
-            }
-            print("Next");*/
-
             for (int i = 0; i < 16; i++)
             {
                 if (!EventHandler.i.OrdersComplete[i] && !EventHandler.i.OrdersFailed[i])

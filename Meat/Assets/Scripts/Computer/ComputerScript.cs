@@ -415,7 +415,6 @@ public class ComputerScript : MonoBehaviour
             FireCam.SetActive(true);
 
             // FADE OUT SOUND (fade in)
-            //EventHandler.i.StartCoroutine("fadeInAmbience", 0);
             StartUI.SetBool("FadeOut", false);
             StartCoroutine(EventHandler.i.StartingUIAnim("NONE", true));
 
@@ -446,7 +445,6 @@ public class ComputerScript : MonoBehaviour
             textBox.enabled = false;
 
             GunSound.Play();
-            //EventHandler.i.StartCoroutine("fadeOutSound", 99);
             yield return new WaitForSeconds(0.1f);
             Splatter.Play();
             BlackScreen.SetActive(true);
