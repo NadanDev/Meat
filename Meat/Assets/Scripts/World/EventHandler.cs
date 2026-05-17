@@ -80,7 +80,7 @@ public class EventHandler : MonoBehaviour
         summaries[0] = "Orders Today: 4\n\nNo data for the first day";
         summaries[1] = "Orders Today: 4\n\nNo data for the second day";
         summaries[2] = "Orders Today: 7\n\nNo data for the third day";
-        summaries[3] = "Orders Today: 9\n\nNo data for the fourth day";
+        summaries[3] = "Orders Today: 8\n\nNo data for the fourth day";
         summaries[4] = "Orders Today: 10\n\nNo data for the fifth day";
 
         if (DifficultyHandler.cont)
@@ -838,11 +838,11 @@ public class EventHandler : MonoBehaviour
             }
             else if (day == 3)
             {
-                ordersNum = 9;
+                ordersNum = 8;
             }
             else if (day == 4)
             {
-                ordersNum = 11;
+                ordersNum = 10;
             }
 
             summaries[day] = $"Day {day + 1} Summary\n\nOrders Today: {ordersNum}\n\nYour errors:\n";
@@ -2150,7 +2150,7 @@ public class EventHandler : MonoBehaviour
         errorsMidOrder = new int[11];
         curOrder = 6;
         OrderTags[6].SetActive(true);
-        dailyLog.Add($"- {(int)timer} seconds: Order 8 requested");
+        dailyLog.Add($"- {(int)timer} seconds: Order 7 requested");
         computerScript.updateLog();
         requestedByTimes[6] = 45 + (int)timer;
         Day3Text();
@@ -2657,79 +2657,16 @@ public class EventHandler : MonoBehaviour
 
 
         // ORDER 8
-        OrderTags[7].SetActive(true);
-        if (skipTo < 8)
-        {
-            for (int i = 0; i < 11; i++)
-            {
-                errors[i] += errorsMidOrder[i];
-            }
-            errorsMidOrder = new int[11];
-            curOrder = 7;
-            dailyLog.Add($"- {(int)timer} seconds: Order 8 requested");
-            computerScript.updateLog();
-            requestedByTimes[7] = 150 + (15 * difficulty) + (int)timer;
-            Day4Text();
-            Orders[7, 6] = 2;
-            Orders[7, 7] = 2;
-            Orders[7, 9] = 1;
-            OrdersCombined[6] += 2;
-            OrdersCombined[7] += 2;
-            OrdersCombined[9] += 1;
-            yield return new WaitForSeconds(1f);
-
-            StartCoroutine(OrderTimer(150 + (15 * difficulty), 7, 0, 0, 0, 0, 0, 0, 2, 2, 0, 1, 0));
-            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-            Alarm.Play();
-            StartCoroutine(switchRed());
-            yield return new WaitForSeconds(3f);
-            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-            yield return new WaitForSeconds(3f);
-            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-            yield return new WaitForSeconds(3f);
-            Instantiate(Meat, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
-
-
-
-
-            yield return new WaitForSeconds(142f + (15 * difficulty));
-        }
-        else
-        {
-            timer += 152f + (15f * difficulty);
-            OrdersComplete[7] = true;
-
-            if (ordersFailed[7])
-            {
-                OrderX[7].SetActive(true);
-                curOrder++;
-            }
-            else
-            {
-                checkmarkOrder(7, true);
-            }
-
-            if (skipTo == 7)
-            {
-                yield return new WaitForSeconds(7f);
-            }
-        }
-
-
-
-        // ORDER 9
         for (int i = 0; i < 11; i++)
         {
             errors[i] += errorsMidOrder[i];
         }
         errorsMidOrder = new int[11];
-        curOrder = 8;
-        OrderTags[8].SetActive(true);
-        OrdersLeftArrow.SetActive(true);
-        OrdersRightArrow.SetActive(true);
-        dailyLog.Add($"- {(int)timer} seconds: Order 10 requested");
+        curOrder = 7;
+        OrderTags[7].SetActive(true);
+        dailyLog.Add($"- {(int)timer} seconds: Order 8 requested");
         computerScript.updateLog();
-        requestedByTimes[8] = 45  + (int)timer;
+        requestedByTimes[7] = 45  + (int)timer;
         Day4Text();
         yield return new WaitForSeconds(1f);
 
@@ -2748,8 +2685,8 @@ public class EventHandler : MonoBehaviour
         Instantiate(Arm, new Vector3(-45, 2, 1.5f), Quaternion.Euler(0, Random.Range(90, 270), 0));
 
         yield return new WaitForSeconds(34f);
-        ordersComplete[8] = true;
-        checkmarkOrder(8, true);
+        ordersComplete[7] = true;
+        checkmarkOrder(7, true);
         yield return new WaitForSeconds(1f);
 
         for (int i = 0; i < 11; i++)
@@ -2769,8 +2706,8 @@ public class EventHandler : MonoBehaviour
         orderContents[4] = $"Order Contents: \n\n- 3 Half Pieces Of Meat {(ordersComplete[4] ? 3 : ordersFailed[4] ? 0 : ordersSent[0])}/3\n- 1 Bag Containing 1 And A Half Pieces Of Meat {(ordersComplete[4] ? 1 : ordersFailed[4] ? 0 : ordersSent[4])}/1\n- 1 Well Cooked Uncut Piece Of Meat {(ordersComplete[4] ? 1 : ordersFailed[4] ? 0 : ordersSent[9])}/1\n\n Requested By: {requestedByTimes[4]} Seconds";
         orderContents[5] = $"Order Contents: \n\n- 2 Uncut Pieces Of Meat {(ordersComplete[5] ? 2 : ordersFailed[5] ? 0 : ordersSent[1])}/2\n- 1 Bag Containing 2 Uncut Pieces Of Meat {(ordersComplete[5] ? 1 : ordersFailed[5] ? 0 : ordersSent[5])}/1\n- 2 Lightly Cooked Half Pieces Of Meat {(ordersComplete[5] ? 2 : ordersFailed[5] ? 0 : ordersSent[6])}/2\n\nRequested By: {requestedByTimes[5]} Seconds";
         orderContents[6] = $"Order Contents: \n\n- 3 Uncut Pieces Of Meat {(ordersComplete[6] ? 3 : ordersFailed[6] ? 0 : ordersSent[1])}/3\n- 4 Half Pieces Of Meat {(ordersComplete[6] ? 4 : ordersFailed[6] ? 0 : ordersSent[0])}/4\n\nRequested By: {requestedByTimes[6]} Seconds";
-        orderContents[7] = $"Order Contents: \n\n- 2 Lightly Cooked Half Pieces Of Meat {(ordersComplete[7] ? 2 : ordersFailed[7] ? 0 : ordersSent[6])}/2\n- 2 Well Cooked Half Pieces Of Meat {(ordersComplete[7] ? 2 : ordersFailed[7] ? 0 : ordersSent[7])}/2\n- 1 Well Cooked Uncut Piece Of Meat {(ordersComplete[7] ? 1 : ordersFailed[7] ? 0 : ordersSent[9])}/1\n\nRequested By: {requestedByTimes[7]} Seconds";
-        orderContents[8] = $"Order Contents: \n\n- 5 Arms\n- 1 Liver\n\nRequested By: {requestedByTimes[8]} Seconds";
+        orderContents[7] = $"Order Contents: \n\n- 5 Arms\n- 1 Liver\n\nRequested By: {requestedByTimes[7]} Seconds";
+        ordersComplete[8] = true;
         ordersComplete[9] = true;
         ordersComplete[10] = true;
         ordersComplete[11] = true;

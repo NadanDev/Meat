@@ -353,7 +353,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 973078527
   m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -73776,7 +73776,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 973078527
   m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -87057,7 +87057,7 @@ MonoBehaviour:
     time.\n\n4. Keep the room clean by throwing any unused meat down the trash chute.\n\nNote:
     We keep track of order errors. Employees who fail to meet our standards will
     be fired.'
-  - 'Nice job finishing your first day.\n\nToday''s the real deal - so that means
+  - 'Nice job finishing your first day.\n\nToday''s the real deal, so that means
     no mistakes on the orders and make sure you get them done on time.\n\nJust a
     heads up: past employees complained about something coming into the room while
     they were working.\n\nI''ll send you another message with the details. Anyway,
@@ -87091,10 +87091,10 @@ MonoBehaviour:
     send you info about. I''ll send the details shortly. '
   - 'Info about the third creature:\n\n1. Good news - this one''s harmless. It won''t
     attack you, but it will block your machines and stop you from fulfilling orders.\n\n2.
-    If you find one, grab the stick I left by your desk. The creature is surprisingly
+    If you find one, grab the broom I left by your desk. The creature is surprisingly
     fragile - give it a few pokes and it''ll fall apart. '
   - 'It''s the final day of the week, but that doesn''t mean you get to slack off.\n\nGood
-    news though - last night I finally got the blender working. This one''s fully
+    news though: last night I finally got the blender working. This one''s fully
     automatic. Just throw the meat into the chute and it''ll blend it into jars for
     you. Just a note: half pieces of meat will blend much faster since the larger
     pieces tend to clog it.'
@@ -97836,7 +97836,6 @@ MonoBehaviour:
   MetalDoorOpenLoc: {fileID: 962502834}
   MetalDoorCloseLoc: {fileID: 110347031}
   interact: 101
-  swtichItem: 113
   Pause: 27
   isComputer: 0
   clickedClockOut: 0
@@ -100904,7 +100903,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 973078527
   m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3

@@ -46,7 +46,11 @@ public class MainMenu : MonoBehaviour
         if (DifficultyHandler.restart)
         {
             DifficultyHandler.restart = false;
+            DifficultyHandler.cont = true;
             PlayerPrefs.SetInt("SkipTo", 0);
+            PlayerPrefs.SetFloat("FailedPercentAvg", 0);
+            PlayerPrefs.SetString("Errors", "");
+            PlayerPrefs.SetString("FailedOrders", "");
             StartCoroutine(Play(true));
         }
     }
@@ -144,6 +148,9 @@ public class MainMenu : MonoBehaviour
         if (yes)
         {
             PlayerPrefs.SetInt("SkipTo", 0);
+            PlayerPrefs.SetFloat("FailedPercentAvg", 0);
+            PlayerPrefs.SetString("Errors", "");
+            PlayerPrefs.SetString("FailedOrders", "");
         }
         chosenResetSkipTo = true;
     }

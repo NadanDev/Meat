@@ -1,6 +1,6 @@
-using UnityEngine;
 using System.Collections;
 using TMPro;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class PlayerCollisions : MonoBehaviour
@@ -227,7 +227,7 @@ public class PlayerCollisions : MonoBehaviour
     IEnumerator WalkAway()
     {
         Step.pitch = Random.Range(0.7f, 1.3f);
-        Step.volume = 0.1f;
+        Step.volume = 1f;
         Step.Play();
         yield return new WaitForSeconds(0.8f);
 
